@@ -6,7 +6,6 @@ import seaborn as sns
 from io import BytesIO
 
 
-
 def with_connection(func):
     def wrapper(*args, **kwargs):
         con = sqlite3.connect("database.db")

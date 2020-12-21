@@ -36,14 +36,13 @@ class CommandHandlers:
 
         reply_markup = InlineKeyboardMarkup(keyboard)
         update.message.reply_text("*📊 Статистика пользователя @vasyanedown*\n\n"
-                                  "🟢 У пользователя активно занятие \"_SEX_\" (_1 час 14 минут_)\n\n"\
-                                                                         "⏱ *Время с пользой*\n" \
-                                                                         "За сегодня: _1234_ часов\n" \
-                                                                         "За неделю: _123_ часов\n" \
-                                                                         "За все время: _777_ часов\n", parse_mode="Markdown", reply_markup=reply_markup)
+                                  "🟢 У пользователя активно занятие \"_SEX_\" (_1 час 14 минут_)\n\n" \
+                                  "⏱ *Время с пользой*\n" \
+                                  "За сегодня: _1234_ часов\n" \
+                                  "За неделю: _123_ часов\n" \
+                                  "За все время: _777_ часов\n", parse_mode="Markdown", reply_markup=reply_markup)
 
     def on_button_click(self, update: Update, context):
-
         query = update.callback_query
 
         if query.data == "🔴":
