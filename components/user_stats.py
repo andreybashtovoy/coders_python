@@ -1,15 +1,12 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler
-from data import Data
+from telegram.ext import CommandHandler, CallbackContext, CallbackQueryHandler
+from data.ds import Data
 
 class UserStats:
     def __init__(self, updater):
         updater.dispatcher.add_handler(CommandHandler('stats', self.stats))
         updater.dispatcher.add_handler(CommandHandler('stats', self.stats))
         updater.dispatcher.add_handler(CallbackQueryHandler(self.on_button_click))
-
-        updater.start_polling()
-        updater.idle()
 
     def stats(self, update: Update, context: CallbackContext) -> None:
         keyboard = [

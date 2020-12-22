@@ -1,6 +1,5 @@
 .ignore
 /.idea
 /venv
-babySemenToken.json
-
+bot_data.json
 

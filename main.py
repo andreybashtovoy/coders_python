@@ -4,15 +4,15 @@ import warnings
 import json
 from components.user_stats import UserStats
 
-
-
 warnings.filterwarnings('ignore')
 
-f = open('bot_data.json')
-json_object = json.load(f)
+if __name__ == "__main__":
+    f = open('bot_data.json')
+    json_object = json.load(f)
 
-updater = Updater(json_object["token"])
+    updater = Updater(json_object["token"])
 
-UserStats(updater)
+    UserStats(updater)
 
-
+    updater.start_polling()
+    updater.idle()
