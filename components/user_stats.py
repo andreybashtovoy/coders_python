@@ -1,6 +1,7 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CommandHandler, CallbackContext, CallbackQueryHandler
 from data.ds import Data
+from data.database import DB
 
 class UserStats:
     def __init__(self, updater):
@@ -20,6 +21,11 @@ class UserStats:
                 InlineKeyboardButton("🤹‍♂️ Статистика по каждому занятию отдельно", callback_data="all_tasks")
             ],
         ]
+
+        result = update.message.text.split()
+
+        if len(result)>1:
+            print(DB.get_by_username(result[1]))
 
         reply_markup = InlineKeyboardMarkup(keyboard)
         update.message.reply_text("*📊 Статистика пользователя @vasyanedown*\n\n"

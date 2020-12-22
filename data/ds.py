@@ -14,7 +14,6 @@ def with_connection(func):
 
     return wrapper
 
-
 class DataMethods:
 
     def __init__(self):
