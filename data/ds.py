@@ -9,6 +9,7 @@ import json
 f = open('bot_data.json')
 json_object = json.load(f)
 
+
 def with_connection(func):
     def wrapper(*args, **kwargs):
         con = sqlite3.connect(json_object['database'] if 'database' in json_object else "database.db")
