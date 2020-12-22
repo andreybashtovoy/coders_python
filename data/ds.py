@@ -4,11 +4,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from io import BytesIO
+import json
 
+f = open('bot_data.json')
+json_object = json.load(f)
 
 def with_connection(func):
     def wrapper(*args, **kwargs):
-        con = sqlite3.connect("database.db")
+        con = sqlite3.connect(json_object['database'] if 'database' in json_object else "database.db")
         return_value = func(*args, **kwargs, con=con)
         return return_value
 
