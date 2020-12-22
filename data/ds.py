@@ -43,5 +43,4 @@ class DataMethods:
         return buf
 
 
-
 Data = DataMethods()
