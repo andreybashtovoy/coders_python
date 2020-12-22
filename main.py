@@ -14,6 +14,7 @@ if __name__ == "__main__":
 
     UserStats(updater)
 
+
     updater.start_polling()
     updater.idle()
     f.close()

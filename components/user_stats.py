@@ -1,24 +1,18 @@
 # telegram imports
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import CommandHandler, CallbackContext, CallbackQueryHandler
+from telegram.ext import CommandHandler, CallbackContext, CallbackQueryHandler, Updater
 from data.ds import Data
 from data.database import DB
+from components.separated_stats import SeparatedStats
 
-# components imports
-from components import separated_stats
-
-
-# components imports
-from components import separated_stats
-
-# components imports
-from components import separated_stats
 
 class UserStats:
-    def __init__(self, updater):
+    def __init__(self, updater: Updater):
         updater.dispatcher.add_handler(CommandHandler('stats', self.stats))
         updater.dispatcher.add_handler(CommandHandler('stats', self.stats))
         updater.dispatcher.add_handler(CallbackQueryHandler(self.on_button_click))
+        self.__updater = updater
+        self.__separated_stats = SeparatedStats(updater)
 
     def stats(self, update: Update, context: CallbackContext) -> None:
         keyboard = [
@@ -57,8 +51,7 @@ class UserStats:
             context.bot.send_dice(update.effective_chat.id)
 
         elif query.data == 'separated_stats':
-
-            separated_stats.show_separated_stats(update, context)
+            self.__separated_stats.show_separated_stats(update)
 
         print(update)
 
