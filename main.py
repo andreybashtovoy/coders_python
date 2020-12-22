@@ -1,6 +1,9 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler
 import warnings
+import json
+
+
 from data import Data
 
 warnings.filterwarnings('ignore')
@@ -8,18 +11,19 @@ warnings.filterwarnings('ignore')
 
 class CommandHandlers:
 
+
+
     def __init__(self):
-        updater = Updater('1467360547:AAFxJ4woA8zTHQ5yLfWGfaMr0iGYhwr0JFo')
-        updater.dispatcher.add_handler(CommandHandler('valera', self.hello))
+        f = open('babySemenToken.json')
+        json_object = json.load(f)
+
+        updater = Updater(json_object["token"])
         updater.dispatcher.add_handler(CommandHandler('stats', self.stats))
         updater.dispatcher.add_handler(CommandHandler('stats', self.stats))
         updater.dispatcher.add_handler(CallbackQueryHandler(self.on_button_click))
 
         updater.start_polling()
         updater.idle()
-
-    def hello(self, update: Update, context: CallbackContext) -> None:
-        context.bot.send_photo(update.effective_chat.id, Data.plot_sleep(update.effective_user.id))
 
     def stats(self, update: Update, context: CallbackContext) -> None:
         keyboard = [
@@ -30,7 +34,7 @@ class CommandHandlers:
                 InlineKeyboardButton("🧩 Статистика всем занятиям", callback_data="🔴ф")
             ],
             [
-                InlineKeyboardButton("🤹‍♂️ Статистика по каждому занятию отдельно", callback_data="🔴ф")
+                InlineKeyboardButton("🤹‍♂️ Статистика по каждому занятию отдельно", callback_data="all_tasks")
             ],
         ]
 
@@ -47,6 +51,10 @@ class CommandHandlers:
 
         if query.data == "🔴":
             context.bot.send_dice(update.effective_chat.id)
+
+        elif query.data == 'all_tasks':
+            print(context.bot.send_dice(update.effective_chat.id))
+
 
         print(update)
 
