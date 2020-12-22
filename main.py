@@ -1,4 +1,4 @@
-from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler
+from telegram.ext import Updater, CommandHandler, CallbackContext
 import warnings
 import json
 from components.user_stats import UserStats
