@@ -10,6 +10,9 @@ from components import separated_stats
 # components imports
 from components import separated_stats
 
+# components imports
+from components import separated_stats
+
 class UserStats:
     def __init__(self, updater):
         updater.dispatcher.add_handler(CommandHandler('stats', self.stats))
@@ -48,6 +51,7 @@ class UserStats:
             context.bot.send_dice(update.effective_chat.id)
 
         elif query.data == 'separated_stats':
+
             separated_stats.show_separated_stats(update, context)
 
         print(update)
