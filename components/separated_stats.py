@@ -16,6 +16,7 @@ keyboard = [
 
 
 # shows multiple buttons to look at detailed information about tasks
+
 def show_separated_stats(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
 

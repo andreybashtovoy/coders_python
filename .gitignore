@@ -1,3 +1,5 @@
+
+
 *.pyc
 *.pyo
 .ignore
@@ -15,8 +17,5 @@ src/*.egg-info
 lib
 lib64
 
-*.pyc
-*.pyc
-*.pyc
-*.pyc
-*.pyc
+
+

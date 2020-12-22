@@ -7,6 +7,9 @@ from data.ds import Data
 from components import separated_stats
 
 
+# components imports
+from components import separated_stats
+
 class UserStats:
     def __init__(self, updater):
         updater.dispatcher.add_handler(CommandHandler('stats', self.stats))
@@ -34,6 +37,7 @@ class UserStats:
                                   "За неделю: _123_ часов\n"
                                   "За все время: _777_ часов\n", parse_mode="Markdown", reply_markup=reply_markup)
 
+
     def hello(self, update: Update, context: CallbackContext) -> None:
         context.bot.send_photo(update.effective_chat.id, Data.plot_sleep(update.effective_user.id))
 
@@ -49,3 +53,4 @@ class UserStats:
         print(update)
 
         # query.delete_message()
+
