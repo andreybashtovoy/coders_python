@@ -27,19 +27,26 @@ class UserStats:
             ],
         ]
 
-        result = update.message.text.split()
+        text = update.message.text.split()
 
-        if len(result)>1:
-            print(DB.get_by_username(result[1]))
+        if len(text) > 1 and text[1][0] == '@':
+            user_data = DB.get_by_username(text[1][1:])
+            # (873181817, 0, 1607385300, 'sbarabas')
+            print(user_data)
+            username = text[1]
+            user_id=user_data[0]
+        else:
+            username = '@'+update.message.from_user.username
+            user_id = update.message.from_user.id
 
         reply_markup = InlineKeyboardMarkup(keyboard)
-        update.message.reply_text("*📊 Статистика пользователя @vasyanedown*\n\n"
-                                  "🟢 У пользователя активно занятие \"_SEX_\" (_1 час 14 минут_)\n\n"
-                                  "⏱ *Время с пользой*\n"
-                                  "За сегодня: _1234_ часов\n"
-                                  "За неделю: _123_ часов\n"
-                                  "За все время: _777_ часов\n", parse_mode="Markdown", reply_markup=reply_markup)
-
+        update.message.reply_text("*📊 Статистика пользователя "+username+"*\n\n"
+                                  "🟢 У пользователя активно занятие \"_SEX_\" (_1 час 14 минут_)\n\n" \
+                                  "⏱ *Время с пользой*\n" \
+                                  "За сегодня: _" + DB.get_user_useful_time_today(user_id) + "_ часов\n" \
+                                  "За неделю: _" + DB.get_user_useful_time_week(user_id) + "_ часов\n" \
+                                  "За месяц: _" + DB.get_user_useful_time_month(user_id) + "_ часов\n" \
+                                  "За все время: _" + DB.get_user_useful_time_all(user_id) + "_ часов\n", parse_mode="Markdown", reply_markup=reply_markup)
 
     def hello(self, update: Update, context: CallbackContext) -> None:
         context.bot.send_photo(update.effective_chat.id, Data.plot_sleep(update.effective_user.id))
