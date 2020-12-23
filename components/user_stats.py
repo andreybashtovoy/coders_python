@@ -27,6 +27,7 @@ class UserStats:
             ],
         ]
 
+
         result = update.message.text.split()
 
         if len(result)>1:
