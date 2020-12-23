@@ -31,13 +31,16 @@ class UserStats:
 
         if len(text) > 1 and text[1][0] == '@':
             user_data = DB.get_by_username(text[1][1:])
-            # (873181817, 0, 1607385300, 'sbarabas')
-            print(user_data)
+            if user_data is None:
+                return
             username = text[1]
             user_id=user_data[0]
         else:
             username = '@'+update.message.from_user.username
             user_id = update.message.from_user.id
+            user_data = DB.get_by_username(update.message.from_user.username)
+            if user_data is None:
+                return
 
         reply_markup = InlineKeyboardMarkup(keyboard)
         update.message.reply_text("*📊 Статистика пользователя "+username+"*\n\n"

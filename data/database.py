@@ -18,6 +18,10 @@ class DataBase:
         pass
 
     def hours_to_str(self, hours_user):
+        print(hours_user)
+        if hours_user is None:
+            print(hours_user)
+            return ''
         hours = floor(hours_user) if hours_user > 0 else ceil(hours_user)
         # minutes = round((hours_user % 1) * 60)
         return str(hours) # + ':' + str(minutes)
@@ -35,17 +39,28 @@ class DataBase:
     @with_connection
     def get_user_useful_time_today(self, user_id, cur):
         cur.execute(
-            "SELECT SUM(a.duration) AS time FROM (SELECT * FROM activities WHERE user_id="+str(user_id)+") a INNER JOIN activity_names an ON a.activity_id=an.id WHERE an.challenge=1 AND a.start_time > DATE('now', 'localtime', '-1 days')")
+            "SELECT SUM(a.duration) AS time FROM (SELECT * FROM activities WHERE user_id="+str(user_id)+") a INNER JOIN activity_names an ON a.activity_id=an.id WHERE an.challenge=1 AND a.start_time > DATE('now', 'localtime')")
 
-        return self.hours_to_str(cur.fetchone()[0])
+        fcho = cur.fetchone()
+
+        if fcho[0] is not None:
+            return self.hours_to_str(fcho[0])
+
+        return '0'
+
 
     @with_connection
     def get_user_useful_time_week(self, user_id, cur):
         cur.execute("SELECT SUM(a.duration) AS time FROM (SELECT * FROM activities WHERE user_id="+str(user_id)+") a "
                     "INNER JOIN activity_names an ON a.activity_id=an.id  WHERE an.challenge=1 "
                     "AND a.start_time > DATE('now', 'localtime', 'weekday 1', '-7 days')")
+        fcho = cur.fetchone()
 
-        return self.hours_to_str(cur.fetchone()[0])
+        if fcho[0] is not None:
+            return self.hours_to_str(fcho[0])
+
+        return '0'
+
 
     @with_connection
     def get_user_useful_time_month(self, user_id, cur):
@@ -53,15 +68,23 @@ class DataBase:
                     "INNER JOIN activity_names an ON a.activity_id=an.id  WHERE an.challenge=1 "
                     "AND a.start_time > DATE('now', 'localtime', 'start of month')")
 
-        return self.hours_to_str(cur.fetchone()[0])
+        fcho = cur.fetchone()
+
+        if fcho[0] is not None:
+            return self.hours_to_str(fcho[0])
+
+        return '0'
 
     @with_connection
     def get_user_useful_time_all(self, user_id, cur):
         cur.execute("SELECT SUM(a.duration) AS time FROM (SELECT * FROM activities WHERE user_id="+str(user_id)+") a "
                     "INNER JOIN activity_names an ON a.activity_id=an.id WHERE an.challenge=1;")
 
-        return self.hours_to_str(cur.fetchone()[0])
+        fcho = cur.fetchone()
 
+        if fcho[0] is not None:
+            return self.hours_to_str(fcho[0])
 
+        return '0'
 
 DB = DataBase()
