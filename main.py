@@ -1,5 +1,4 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler
+from telegram.ext import Updater
 import warnings
 import json
 from components.user_stats import UserStats
@@ -16,3 +15,4 @@ if __name__ == "__main__":
 
     updater.start_polling()
     updater.idle()
+    f.close()

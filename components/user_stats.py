@@ -1,13 +1,18 @@
+# telegram imports
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import CommandHandler, CallbackContext, CallbackQueryHandler
+from telegram.ext import CommandHandler, CallbackContext, CallbackQueryHandler, Updater
 from data.ds import Data
 from data.database import DB
+from components.separated_stats import SeparatedStats
+
 
 class UserStats:
-    def __init__(self, updater):
+    def __init__(self, updater: Updater):
         updater.dispatcher.add_handler(CommandHandler('stats', self.stats))
         updater.dispatcher.add_handler(CommandHandler('stats', self.stats))
         updater.dispatcher.add_handler(CallbackQueryHandler(self.on_button_click))
+        self.__updater = updater
+        self.__separated_stats = SeparatedStats(updater)
 
     def stats(self, update: Update, context: CallbackContext) -> None:
         keyboard = [
@@ -18,7 +23,7 @@ class UserStats:
                 InlineKeyboardButton("🧩 Статистика всем занятиям", callback_data="🔴ф")
             ],
             [
-                InlineKeyboardButton("🤹‍♂️ Статистика по каждому занятию отдельно", callback_data="all_tasks")
+                InlineKeyboardButton("🤹‍♂️ Статистика по каждому занятию отдельно", callback_data="separated_stats")
             ],
         ]
 
@@ -52,10 +57,10 @@ class UserStats:
         if query.data == "🔴":
             context.bot.send_dice(update.effective_chat.id)
 
-        elif query.data == 'all_tasks':
-            print(context.bot.send_dice(update.effective_chat.id))
-
+        elif query.data == 'separated_stats':
+            self.__separated_stats.show_separated_stats(update)
 
         print(update)
 
-        update.callback_query.delete_message()
+        # query.delete_message()
+
