@@ -8,7 +8,6 @@ import json
 
 f = open('bot_data.json')
 json_object = json.load(f)
-#asdasd
 
 def with_connection(func):
     def wrapper(*args, **kwargs):
