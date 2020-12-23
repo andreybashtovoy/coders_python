@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from io import BytesIO
 import json
+#as
 
 f = open('bot_data.json')
 json_object = json.load(f)
@@ -22,6 +23,7 @@ class DataMethods:
 
     def __init__(self):
         pass
+
 
     @with_connection
     def plot_sleep(self, user_id, con):
