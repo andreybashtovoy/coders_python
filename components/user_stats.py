@@ -1,4 +1,3 @@
-# telegram imports
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CommandHandler, CallbackContext, CallbackQueryHandler, Updater
 from data.ds import Data
