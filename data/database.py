@@ -1,9 +1,13 @@
 import sqlite3
 from math import floor, ceil
+import json
+
+f = open('bot_data.json')
+json_object = json.load(f)
 
 def with_connection(func):
     def wrapper(*args, **kwargs):
-        con = sqlite3.connect("./data/database.db")
+        con = sqlite3.connect(json_object['database'] if 'database' in json_object else "./data/database.db")
         cur = con.cursor()
         return_value = func(*args, **kwargs, cur=cur)
         con.close()
