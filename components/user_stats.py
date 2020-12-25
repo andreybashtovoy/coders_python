@@ -8,7 +8,6 @@ from components.separated_stats import SeparatedStats
 class UserStats:
     def __init__(self, updater: Updater):
         updater.dispatcher.add_handler(CommandHandler('stats', self.stats))
-        updater.dispatcher.add_handler(CommandHandler('stats', self.stats))
         updater.dispatcher.add_handler(CallbackQueryHandler(self.on_button_click))
         self.__updater = updater
         self.__separated_stats = SeparatedStats(updater)
