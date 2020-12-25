@@ -3,7 +3,7 @@ from telegram.ext import CommandHandler, CallbackContext, CallbackQueryHandler, 
 from data.ds import Data
 from data.database import DB
 from components.separated_stats import SeparatedStats
-#asfdadfwsfasdsa
+#asfdadfwsfasdsaіваіваіва
 
 class UserStats:
     def __init__(self, updater: Updater):
