@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from io import BytesIO
 import json
-#asasa
+#asasal
 
 f = open('bot_data.json')
 json_object = json.load(f)
