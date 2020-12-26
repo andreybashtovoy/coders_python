@@ -42,10 +42,14 @@ class UserStats:
             user_data = DB.get_by_username(update.message.from_user.username)
             if user_data is None:
                 return
-
+        # get_active_task_user
+        DB.get_active_task_user(user_id)
+        # print(DB.get_active_task_user(user_id))
         reply_markup = InlineKeyboardMarkup(keyboard)
-        update.message.reply_text("*📊 Статистика пользователя "+username+"*\n\n"
-                                  "🟢 У пользователя активно занятие \"_SEX_\" (_1 час 14 минут_)\n\n" +
+        data_task = DB.get_active_task_user(user_id)
+        task_icon = "🟢" if data_task[1] else "🔴"
+        update.message.reply_text("*📊 Статистика пользователя "+username+"*\n\n" +
+                                  task_icon +" У пользователя активно занятие \"_" + data_task[0] + "_\" (" + data_task[2] + ")\n\n" +
                                   "⏱ *Время с пользой*\n" +
                                   "За сегодня: " + DB.get_user_useful_time_today(user_id) + "\n" +
                                   "За неделю: " + DB.get_user_useful_time_week(user_id) + "\n" +
