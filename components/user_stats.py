@@ -73,4 +73,5 @@ class UserStats:
         # query.delete_message()
 
     def restart(self, update: Update, context):
+        update.message.reply_text("До связи")
         os._exit(0)
