@@ -9,21 +9,36 @@ import json
 f = open('bot_data.json')
 json_object = json.load(f)
 
-def with_connection(func):
-    def wrapper(*args, **kwargs):
-        con = sqlite3.connect(json_object['database'] if 'database' in json_object else "database.db")
-        return_value = func(*args, **kwargs, con=con)
-        return return_value
-
-    return wrapper
-
 
 class DataMethods:
 
-    def __init__(self):
-        pass
+    def with_connection(func):
+        def wrapper(*args, **kwargs):
+            con = sqlite3.connect(json_object['database'] if 'database' in json_object else "./data/database.db")
+            return_value = func(*args, **kwargs, con=con)
+            return return_value
 
+        return wrapper
 
+    def plot_and_return(func):
+        def wrapper(*args, **kwargs):
+            func(*args, **kwargs)
+            buf = BytesIO()
+            plt.savefig(buf, format='png')
+            buf.seek(0)
+
+            plt.clf()
+
+            return buf
+
+        return wrapper
+
+    @with_connection
+    def __init__(self, con):
+        self.users = pd.read_sql_query("SELECT * from users", con)
+        self.activity_names = pd.read_sql_query("SELECT * from activity_names", con)
+
+    @plot_and_return
     @with_connection
     def plot_sleep(self, user_id, con):
         durations = \
@@ -34,13 +49,23 @@ class DataMethods:
         sns.set_color_codes()
         sns.distplot(durations, color='y')
 
-        buf = BytesIO()
-        plt.savefig(buf, format='png')
-        buf.seek(0)
+    @plot_and_return
+    @with_connection
+    def plot_time_with_benefit(self, user_id, con):
+        activities = pd.read_sql_query("SELECT * from activities WHERE user_id=" + str(user_id), con)
+        activities = activities.merge(self.activity_names[['id', 'challenge']], left_on="activity_id", right_on="id",
+                                      how="inner")
+        activities['date'] = activities.start_time.apply(lambda x: pd.Timestamp(x).strftime('%D'))
 
-        plt.clf()
+        data = activities[activities.challenge == 1].groupby(by='date').duration.sum()
+        data_last = data[-7:]
+        sns.set_style('darkgrid')
+        ax = sns.barplot(x=data_last.index, y=data_last)
+        ax.set_xlabel('Дата')
+        ax.set_ylabel('Время с пользой (часов)')
+        ax.set_title('Время с пользой пользователя по дням')
 
-        return buf
+
 
 
 Data = DataMethods()
