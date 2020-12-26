@@ -23,7 +23,7 @@ class DataBase:
         pass
 
     def __hours_to_str(self, fcho):
-
+        print(fcho)
         time_user = fcho[0]
 
         if fcho[0] is not None and fcho[1] is not None:
@@ -32,7 +32,7 @@ class DataBase:
             data_start = datetime.datetime.strptime(fcho[2], '%Y-%m-%d %H:%M:%S')
             diff = (data_now - data_start).seconds / 3600
             time_user = time_user + diff
-            print(4)
+            # print(4)
 
         elif fcho[0] is None:
             return False
@@ -118,7 +118,7 @@ class DataBase:
         fcho = cur.fetchone()
 
         user_task_time_in_date = (0, 0, fcho[1])
-
+        print('Lox')
         time = self.__hours_to_str(user_task_time_in_date)
 
         return [fcho[0],  True if fcho[2] != 0 else False, time if time else '0']

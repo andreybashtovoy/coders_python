@@ -43,7 +43,7 @@ class UserStats:
             if user_data is None:
                 return
         # get_active_task_user
-        DB.get_active_task_user(user_id)
+        # DB.get_active_task_user(user_id)
         # print(DB.get_active_task_user(user_id))
         reply_markup = InlineKeyboardMarkup(keyboard)
         data_task = DB.get_active_task_user(user_id)
