@@ -53,11 +53,13 @@ class DataBase:
 
     @with_connection
     def get_user_useful_time_today(self, user_id, cur):
-        cur.execute(
-            "SELECT SUM(a.duration) AS time, ac.duration, ac.start_time FROM (SELECT * FROM activities WHERE user_id="+str(user_id)+") a INNER JOIN (SELECT * FROM activities WHERE duration=0) ac ON ac.user_id=a.user_id INNER JOIN activity_names an ON a.activity_id=an.id WHERE an.challenge=1 AND a.start_time > DATE('now', 'localtime')")
+        # "SELECT SUM(a.duration) AS time, ac.duration, ac.start_time FROM (SELECT * FROM activities WHERE user_id=" + str(user_id) + ") a INNER JOIN (SELECT * FROM activities WHERE duration=0) ac ON ac.user_id=a.user_id INNER JOIN activity_names an ON a.activity_id=an.id WHERE an.challenge=1 AND a.start_time > DATE('now', 'localtime')")
+        cur.execute("SELECT SUM(a.duration) AS time, ac.duration, ac.start_time FROM (SELECT * FROM activities WHERE user_id='858295159') a"+
+                    " INNER JOIN activity_names an ON a.activity_id=an.id LEFT JOIN (SELECT * FROM activities WHERE duration=0) ac ON ac.user_id=a.user_id AND an.id = ac.activity_id "+
+                    "WHERE an.challenge=1 AND a.start_time > DATE('now', 'localtime');")
 
         fcho = cur.fetchone()
-
+        print(fcho)
         time = self.hours_to_str(fcho)
 
         if time:
@@ -70,7 +72,7 @@ class DataBase:
 
 
 
-        cur.execute("SELECT SUM(a.duration) AS time, ac.duration, ac.start_time FROM (SELECT * FROM activities WHERE user_id="+str(user_id)+") a INNER JOIN activity_names an ON a.activity_id=an.id INNER JOIN (SELECT * FROM activities WHERE duration=0) ac ON ac.user_id=a.user_id WHERE an.challenge=1 AND a.start_time > DATE('now', 'localtime', 'weekday 1', '-7 days')")
+        cur.execute("SELECT SUM(a.duration) AS time, ac.duration, ac.start_time FROM (SELECT * FROM activities WHERE user_id=" + str(user_id) + ") a INNER JOIN activity_names an ON a.activity_id=an.id INNER JOIN (SELECT * FROM activities WHERE duration=0) ac ON ac.user_id=a.user_id WHERE an.challenge=1 AND a.start_time > DATE('now', 'localtime', 'weekday 1', '-7 days')")
 
         fcho = cur.fetchone()
 
@@ -96,10 +98,10 @@ class DataBase:
 
     @with_connection
     def get_user_useful_time_month(self, user_id, cur):
-        cur.execute("SELECT SUM(a.duration) AS time, ac.duration, ac.start_time FROM (SELECT * FROM activities WHERE user_id='858295159') a INNER JOIN activity_names an ON a.activity_id=an.id INNER JOIN (SELECT * FROM activities WHERE duration=0) ac ON ac.user_id=a.user_id WHERE an.challenge=1 AND a.start_time > DATE('now', 'localtime', 'start of month')")
+        cur.execute("SELECT SUM(a.duration) AS time, ac.duration, ac.start_time FROM (SELECT * FROM activities WHERE user_id='858295159') a INNER JOIN activity_names an ON a.activity_id=an.id LEFT JOIN (SELECT * FROM activities WHERE duration=0) ac ON ac.user_id=a.user_id AND an.id = ac.activity_id WHERE an.challenge=1 AND a.start_time > DATE('now', 'localtime', 'start of month')")
 
         fcho = cur.fetchone()
-
+        print(fcho)
         time = self.hours_to_str(fcho)
 
         if time:
@@ -108,7 +110,7 @@ class DataBase:
 
     @with_connection
     def get_user_useful_time_all(self, user_id, cur):
-        cur.execute("SELECT SUM(a.duration) AS time, ac.duration, ac.start_time FROM (SELECT * FROM activities WHERE user_id="+str(user_id)+") a "
+        cur.execute("SELECT SUM(a.duration) AS time, ac.duration, ac.start_time FROM (SELECT * FROM activities WHERE user_id=" + str(user_id) + ") a "
                     "INNER JOIN (SELECT * FROM activities WHERE duration=0) ac ON ac.user_id=a.user_id "
                     "INNER JOIN activity_names an ON a.activity_id=an.id WHERE an.challenge=1;")
 
