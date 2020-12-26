@@ -41,12 +41,12 @@ class UserStats:
 
         reply_markup = InlineKeyboardMarkup(keyboard)
         update.message.reply_text("*📊 Статистика пользователя "+username+"*\n\n"
-                                  "🟢 У пользователя активно занятие \"_SEX_\" (_1 час 14 минут_)\n\n" \
-                                  "⏱ *Время с пользой*\n" \
-                                  "За сегодня: _" + DB.get_user_useful_time_today(user_id) + "_ часов\n" \
-                                  "За неделю: _" + DB.get_user_useful_time_week(user_id) + "_ часов\n" \
-                                  "За месяц: _" + DB.get_user_useful_time_month(user_id) + "_ часов\n" \
-                                  "За все время: _" + DB.get_user_useful_time_all(user_id) + "_ часов\n", parse_mode="Markdown", reply_markup=reply_markup)
+                                  "🟢 У пользователя активно занятие \"_SEX_\" (_1 час 14 минут_)\n\n" +
+                                  "⏱ *Время с пользой*\n" +
+                                  "За сегодня: " + DB.get_user_useful_time_today(user_id) + "\n" +
+                                  "За неделю: " + DB.get_user_useful_time_week(user_id) + "\n" +
+                                  "За месяц: " + DB.get_user_useful_time_month(user_id) + "\n" +
+                                  "За все время: " + DB.get_user_useful_time_all(user_id) + "\n", parse_mode="Markdown", reply_markup=reply_markup)
 
     def hello(self, update: Update, context: CallbackContext) -> None:
         context.bot.send_photo(update.effective_chat.id, Data.plot_sleep(update.effective_user.id))
