@@ -8,6 +8,7 @@ class UserStats:
     def __init__(self, updater: Updater):
         updater.dispatcher.add_handler(CommandHandler('stats', self.stats))
         updater.dispatcher.add_handler(CommandHandler('test', self.hello))
+        updater.dispatcher.add_handler(CommandHandler('get_chat_id', self.get_chat_id))
         updater.dispatcher.add_handler(CallbackQueryHandler(self.on_button_click))
         self.__updater = updater
         self.__separated_stats = SeparatedStats(updater)
@@ -52,6 +53,9 @@ class UserStats:
     def hello(self, update: Update, context: CallbackContext) -> None:
         #context.bot.send_photo(update.effective_chat.id, Data.plot_sleep(update.effective_user.id))
         context.bot.send_photo(update.effective_chat.id, Data.plot_time_with_benefit(update.effective_user.id))
+
+    def get_chat_id(self, update: Update, context: CallbackContext) -> None:
+        update.message.reply_text(update.effective_chat.id)
 
     def on_button_click(self, update: Update, context):
         query = update.callback_query
