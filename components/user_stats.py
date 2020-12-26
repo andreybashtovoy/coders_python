@@ -3,12 +3,14 @@ from telegram.ext import CommandHandler, CallbackContext, CallbackQueryHandler, 
 from data.ds import Data
 from data.database import DB
 from components.separated_stats import SeparatedStats
+import os
 
 class UserStats:
     def __init__(self, updater: Updater):
         updater.dispatcher.add_handler(CommandHandler('stats', self.stats))
         updater.dispatcher.add_handler(CommandHandler('test', self.hello))
         updater.dispatcher.add_handler(CommandHandler('get_chat_id', self.get_chat_id))
+        updater.dispatcher.add_handler(CommandHandler('restart', self.restart))
         updater.dispatcher.add_handler(CallbackQueryHandler(self.on_button_click))
         self.__updater = updater
         self.__separated_stats = SeparatedStats(updater)
@@ -70,3 +72,5 @@ class UserStats:
 
         # query.delete_message()
 
+    def restart(self, update: Update, context):
+        os._exit(0)
