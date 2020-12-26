@@ -11,6 +11,8 @@ if __name__ == "__main__":
 
     updater = Updater(json_object["token"])
 
+    updater.bot.send_message(-1001243947001, "Restarted")
+
     UserStats(updater)
 
     updater.start_polling()
