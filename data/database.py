@@ -98,7 +98,7 @@ class DataBase:
 
     @with_connection
     def get_user_useful_time_month(self, user_id, cur):
-        cur.execute("SELECT SUM(a.duration) AS time, ac.duration, ac.start_time FROM (SELECT * FROM activities WHERE user_id='858295159') a INNER JOIN activity_names an ON a.activity_id=an.id LEFT JOIN (SELECT * FROM activities WHERE duration=0) ac ON ac.user_id=a.user_id AND an.id = ac.activity_id WHERE an.challenge=1 AND a.start_time > DATE('now', 'localtime', 'start of month')")
+        cur.execute("SELECT SUM(a.duration) AS time, ac.duration, ac.start_time FROM (SELECT * FROM activities WHERE user_id=" + str(user_id) + ") a INNER JOIN activity_names an ON a.activity_id=an.id LEFT JOIN (SELECT * FROM activities WHERE duration=0) ac ON ac.user_id=a.user_id AND an.id = ac.activity_id WHERE an.challenge=1 AND a.start_time > DATE('now', 'localtime', 'start of month')")
 
         fcho = cur.fetchone()
         print(fcho)
@@ -111,7 +111,7 @@ class DataBase:
     @with_connection
     def get_user_useful_time_all(self, user_id, cur):
         cur.execute("SELECT SUM(a.duration) AS time, ac.duration, ac.start_time FROM (SELECT * FROM activities WHERE user_id=" + str(user_id) + ") a "
-                    "INNER JOIN (SELECT * FROM activities WHERE duration=0) ac ON ac.user_id=a.user_id "
+                    "LEFT JOIN (SELECT * FROM activities WHERE duration=0) ac ON ac.user_id=a.user_id AND an.id = ac.activity_id "
                     "INNER JOIN activity_names an ON a.activity_id=an.id WHERE an.challenge=1;")
 
         fcho = cur.fetchone()
