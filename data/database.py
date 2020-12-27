@@ -23,7 +23,7 @@ class DataBase:
         pass
 
     def __hours_to_str(self, fcho):
-
+        print(fcho)
         time_user = fcho[0]
 
         if fcho[0] is not None and fcho[1] is not None:
@@ -32,12 +32,12 @@ class DataBase:
             data_start = datetime.datetime.strptime(fcho[2], '%Y-%m-%d %H:%M:%S')
             diff = (data_now - data_start).seconds / 3600
             time_user = time_user + diff
-            print(4)
+            # print(4)
 
         elif fcho[0] is None:
-            return False
+            return " _0_ часов _0_ минут"
 
-        hours = floor(time_user) if time_user > 0 else ceil(time_user)
+        hours = floor(time_user) if time_user > 0 else floor(time_user)
         minutes = round((time_user % 1) * 60)
 
         return " _"+str(hours) + "_ часов _" + str(minutes) + "_ минут"
@@ -75,17 +75,13 @@ class DataBase:
     @with_connection
     def get_user_useful_time_week(self, user_id, cur):
 
-
-
         cur.execute("SELECT SUM(a.duration) AS time, ac.duration, ac.start_time FROM (SELECT * FROM activities WHERE user_id=" + str(user_id) + ") a INNER JOIN activity_names an ON a.activity_id=an.id LEFT JOIN (SELECT * FROM activities WHERE duration=0) ac ON ac.user_id=a.user_id AND an.id = ac.activity_id  WHERE an.challenge=1 AND a.start_time > DATE('now', 'localtime', 'weekday 1', '-7 days')")
 
         fcho = cur.fetchone()
 
         time = self.__hours_to_str(fcho)
 
-        if time:
-            return time
-        return '0'
+        return time
 
 
     @with_connection
@@ -96,9 +92,7 @@ class DataBase:
 
         time = self.__hours_to_str(fcho)
 
-        if time:
-            return time
-        return '0'
+        return time
 
     @with_connection
     def get_user_useful_time_all(self, user_id, cur):
@@ -110,9 +104,7 @@ class DataBase:
 
         time = self.__hours_to_str(fcho)
 
-        if time:
-            return time
-        return '0'
+        return time
 
     @with_connection
     def get_active_task_user(self, user_id, cur):
@@ -123,9 +115,8 @@ class DataBase:
         fcho = cur.fetchone()
 
         user_task_time_in_date = (0, 0, fcho[1])
-
         time = self.__hours_to_str(user_task_time_in_date)
 
-        return [fcho[0],  True if fcho[2] != 0 else False, time if time else '0']
+        return [fcho[0],  True if fcho[2] != 0 else False, time]
 
 DB = DataBase()
