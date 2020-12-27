@@ -15,7 +15,19 @@ class UserStats:
         self.__updater = updater
         self.__separated_stats = SeparatedStats(updater)
 
-    def stats(self, update: Update, context: CallbackContext) -> None:
+    def get_message_text(self, user):
+        active_task = DB.get_active_task_user(user[0])
+        task_icon = "🟢" if active_task[1] else "🔴"
+
+        return("*📊 Статистика пользователя @"+user[3]+"*\n\n" +
+                                  task_icon +" У пользователя активно занятие \"_" + active_task[0] + "_\" (" + active_task[2] + ")\n\n" +
+                                  "⏱ *Время с пользой*\n" +
+                                  "За сегодня: " + DB.get_user_useful_time_today(user[0]) + "\n" +
+                                  "За неделю: " + DB.get_user_useful_time_week(user[0]) + "\n" +
+                                  "За месяц: " + DB.get_user_useful_time_month(user[0]) + "\n" +
+                                  "За все время: " + DB.get_user_useful_time_all(user[0]) + "\n")
+
+    def get_message_keyboard(self):
         keyboard = [
             [
                 InlineKeyboardButton("📅 Полезное время по дням", callback_data="🔴ф")
@@ -28,33 +40,23 @@ class UserStats:
             ],
         ]
 
+        return InlineKeyboardMarkup(keyboard)
+
+    def stats(self, update: Update, context: CallbackContext) -> None:
         text = update.message.text.split()
 
         if len(text) > 1 and text[1][0] == '@':
             user_data = DB.get_by_username(text[1][1:])
             if user_data is None:
                 return
-            username = text[1]
-            user_id=user_data[0]
         else:
-            username = '@'+update.message.from_user.username
-            user_id = update.message.from_user.id
             user_data = DB.get_by_username(update.message.from_user.username)
             if user_data is None:
                 return
-        # get_active_task_user
-        DB.get_active_task_user(user_id)
-        # print(DB.get_active_task_user(user_id))
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        data_task = DB.get_active_task_user(user_id)
-        task_icon = "🟢" if data_task[1] else "🔴"
-        update.message.reply_text("*📊 Статистика пользователя "+username+"*\n\n" +
-                                  task_icon +" У пользователя активно занятие \"_" + data_task[0] + "_\" (" + data_task[2] + ")\n\n" +
-                                  "⏱ *Время с пользой*\n" +
-                                  "За сегодня: " + DB.get_user_useful_time_today(user_id) + "\n" +
-                                  "За неделю: " + DB.get_user_useful_time_week(user_id) + "\n" +
-                                  "За месяц: " + DB.get_user_useful_time_month(user_id) + "\n" +
-                                  "За все время: " + DB.get_user_useful_time_all(user_id) + "\n", parse_mode="Markdown", reply_markup=reply_markup)
+
+        update.message.reply_text(text=self.get_message_text(user_data),
+                                  parse_mode="Markdown",
+                                  reply_markup=self.get_message_keyboard())
 
     def hello(self, update: Update, context: CallbackContext) -> None:
         #context.bot.send_photo(update.effective_chat.id, Data.plot_sleep(update.effective_user.id))
@@ -62,6 +64,22 @@ class UserStats:
 
     def get_chat_id(self, update: Update, context: CallbackContext) -> None:
         update.message.reply_text(update.effective_chat.id)
+
+    def edit_message_with_plot(self, update: Update, context: CallbackContext, plot):
+        keyboard = [
+            [
+                InlineKeyboardButton("◀️ Назад", callback_data="back_to_main")
+            ]
+        ]
+
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        context.bot.send_photo(
+            chat_id=update.effective_chat.id,
+            reply_to_message_id=update.callback_query.message.reply_to_message.message_id,
+            photo=plot,
+            reply_markup=reply_markup
+        )
+        update.callback_query.message.delete()
 
     def on_button_click(self, update: Update, context):
         query = update.callback_query
@@ -71,6 +89,13 @@ class UserStats:
 
         elif query.data == 'separated_stats':
             self.__separated_stats.show_separated_stats(update)
+
+        elif query.data == 'all_tasks_by_days':
+            self.edit_message_with_plot(update, context, Data.plot_time_with_benefit(update.effective_user.id))
+
+        elif query.data == 'back_to_main':
+            args = self.get_args_for_main_message(query)
+            query.edit_message_text(**args)
 
         print(update)
 
