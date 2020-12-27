@@ -38,6 +38,9 @@ class UserStats:
             [
                 InlineKeyboardButton("🤹‍♂️ Статистика по каждому занятию отдельно", callback_data="separated_stats")
             ],
+            [
+                InlineKeyboardButton("🔄 Обновить", callback_data="update_message "+str(user_id))
+            ]
         ]
 
         return InlineKeyboardMarkup(keyboard)
@@ -68,6 +71,14 @@ class UserStats:
             parse_mode="Markdown"
         )
         update.callback_query.message.delete()
+
+    def update_main_message(self, update: Update, context: CallbackContext, user_id):
+        user_data = DB.get_user_by_id(user_id)
+        update.callback_query.edit_message_text(
+            text=self.get_message_text(user_data),
+            reply_markup=self.get_message_keyboard(user_id),
+            parse_mode="Markdown"
+        )
 
     def hello(self, update: Update, context: CallbackContext) -> None:
         #context.bot.send_photo(update.effective_chat.id, Data.plot_sleep(update.effective_user.id))
@@ -109,6 +120,10 @@ class UserStats:
         elif query.data.startswith('back_to_main'):
             user_id = int(query.data.split()[1])
             self.resend_main_message(update, context, user_id)
+
+        elif query.data.startswith('update_message'):
+            user_id = int(query.data.split()[1])
+            self.update_main_message(update, context, user_id)
 
         print(update)
 
