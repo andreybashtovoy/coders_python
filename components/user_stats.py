@@ -19,7 +19,7 @@ class UserStats:
         active_task = DB.get_active_task_user(user[0])
         task_icon = "🟢" if active_task[1] else "🔴"
 
-        return("*📊 Статистика пользователя* _"+user[3]+"_\n\n" +
+        return("*📊 Статистика пользователя* _"+user[3].replace("_"," ")+"_\n\n" +
                                   task_icon +" У пользователя активно занятие \"_" + active_task[0] + "_\" (" + active_task[2] + ")\n\n" +
                                   "⏱ *Время с пользой*\n" +
                                   "За сегодня: " + DB.get_user_useful_time_today(user[0]) + "\n" +
@@ -46,8 +46,6 @@ class UserStats:
         return InlineKeyboardMarkup(keyboard)
 
     def stats(self, update: Update, context: CallbackContext) -> None:
-
-
         if update.message.reply_to_message is None:
             print('sdfds')
             text = update.message.text.split()
