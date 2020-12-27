@@ -46,15 +46,23 @@ class UserStats:
         return InlineKeyboardMarkup(keyboard)
 
     def stats(self, update: Update, context: CallbackContext) -> None:
-        # print(update.message.reply_to_message.from_user.id)
-        text = update.message.text.split()
 
-        if len(text) > 1 and text[1][0] == '@':
-            user_data = DB.get_by_username(text[1][1:])
-            if user_data is None:
-                return
+
+        if update.message.reply_to_message is None:
+            print('sdfds')
+            text = update.message.text.split()
+            if len(text) > 1 and text[1][0] == '@':
+                user_data = DB.get_by_username(text[1][1:])
+                if user_data is None:
+                    return
+            else:
+                user_data = DB.get_by_username(update.message.from_user.username)
+                if user_data is None:
+                    return
         else:
-            user_data = DB.get_by_username(update.message.from_user.username)
+            print(update.message.reply_to_message.from_user.username)
+            user_data = DB.get_by_username(update.message.reply_to_message.from_user.username)
+            print(user_data)
             if user_data is None:
                 return
 
