@@ -38,9 +38,10 @@ class DataBase:
             return " _0_ часов _0_ минут"
 
         hours = floor(time_user) if time_user > 0 else floor(time_user)
-        minutes = round((time_user % 1) * 60)
+        minutes = floor((time_user % 1) * 60)
+        seconds = floor((((time_user % 1) * 60) % 1) * 60)
 
-        return " _"+str(hours) + "_ часов _" + str(minutes) + "_ минут"
+        return " _"+str(hours) + "_ часов _" + str(minutes) + "_ минут _" +  str(seconds) + "_ секунд"
 
 
 

@@ -5,6 +5,7 @@ from data.database import DB
 from components.separated_stats import SeparatedStats
 import os
 
+
 class UserStats:
     def __init__(self, updater: Updater):
         updater.dispatcher.add_handler(CommandHandler('stats', self.stats))
