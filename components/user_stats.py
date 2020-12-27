@@ -46,6 +46,7 @@ class UserStats:
         return InlineKeyboardMarkup(keyboard)
 
     def stats(self, update: Update, context: CallbackContext) -> None:
+        # print(update.message.reply_to_message.from_user.id)
         text = update.message.text.split()
 
         if len(text) > 1 and text[1][0] == '@':
@@ -125,7 +126,6 @@ class UserStats:
             user_id = int(query.data.split()[1])
             self.update_main_message(update, context, user_id)
 
-        print(update)
 
         # query.delete_message()
 

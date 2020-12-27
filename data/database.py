@@ -23,7 +23,7 @@ class DataBase:
         pass
 
     def __hours_to_str(self, fcho):
-        print(fcho)
+
         time_user = fcho[0]
 
         if fcho[0] is not None and fcho[1] is not None:
@@ -32,7 +32,7 @@ class DataBase:
             data_start = datetime.datetime.strptime(fcho[2], '%Y-%m-%d %H:%M:%S')
             diff = (data_now - data_start).seconds / 3600
             time_user = time_user + diff
-            # print(4)
+
 
         elif fcho[0] is None:
             return " _0_ часов _0_ минут"
