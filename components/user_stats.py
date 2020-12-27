@@ -27,10 +27,10 @@ class UserStats:
                                   "За месяц: " + DB.get_user_useful_time_month(user[0]) + "\n" +
                                   "За все время: " + DB.get_user_useful_time_all(user[0]) + "\n")
 
-    def get_message_keyboard(self):
+    def get_message_keyboard(self, user_id):
         keyboard = [
             [
-                InlineKeyboardButton("📅 Полезное время по дням", callback_data="🔴ф")
+                InlineKeyboardButton("📅 Полезное время по дням", callback_data="all_tasks_by_days "+str(user_id))
             ],
             [
                 InlineKeyboardButton("🧩 Статистика всем занятиям", callback_data="🔴ф")
@@ -56,7 +56,18 @@ class UserStats:
 
         update.message.reply_text(text=self.get_message_text(user_data),
                                   parse_mode="Markdown",
-                                  reply_markup=self.get_message_keyboard())
+                                  reply_markup=self.get_message_keyboard(user_data[0]))
+
+    def resend_main_message(self, update: Update, context: CallbackContext, user_id):
+        user_data = DB.get_user_by_id(user_id)
+        context.bot.send_message(
+            text=self.get_message_text(user_data),
+            chat_id=update.effective_chat.id,
+            reply_to_message_id=update.callback_query.message.reply_to_message.message_id,
+            reply_markup=self.get_message_keyboard(user_id),
+            parse_mode="Markdown"
+        )
+        update.callback_query.message.delete()
 
     def hello(self, update: Update, context: CallbackContext) -> None:
         #context.bot.send_photo(update.effective_chat.id, Data.plot_sleep(update.effective_user.id))
@@ -65,10 +76,10 @@ class UserStats:
     def get_chat_id(self, update: Update, context: CallbackContext) -> None:
         update.message.reply_text(update.effective_chat.id)
 
-    def edit_message_with_plot(self, update: Update, context: CallbackContext, plot):
+    def edit_message_with_plot(self, update: Update, context: CallbackContext, user_id, plot):
         keyboard = [
             [
-                InlineKeyboardButton("◀️ Назад", callback_data="back_to_main")
+                InlineKeyboardButton("◀️ Назад", callback_data="back_to_main "+str(user_id))
             ]
         ]
 
@@ -79,6 +90,7 @@ class UserStats:
             photo=plot,
             reply_markup=reply_markup
         )
+
         update.callback_query.message.delete()
 
     def on_button_click(self, update: Update, context):
@@ -90,12 +102,13 @@ class UserStats:
         elif query.data == 'separated_stats':
             self.__separated_stats.show_separated_stats(update)
 
-        elif query.data == 'all_tasks_by_days':
-            self.edit_message_with_plot(update, context, Data.plot_time_with_benefit(update.effective_user.id))
+        elif query.data.startswith('all_tasks_by_days'):
+            user_id = int(query.data.split()[1])
+            self.edit_message_with_plot(update, context, user_id, Data.plot_time_with_benefit(user_id))
 
-        elif query.data == 'back_to_main':
-            args = self.get_args_for_main_message(query)
-            query.edit_message_text(**args)
+        elif query.data.startswith('back_to_main'):
+            user_id = int(query.data.split()[1])
+            self.resend_main_message(update, context, user_id)
 
         print(update)
 

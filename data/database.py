@@ -50,6 +50,11 @@ class DataBase:
         return cur.fetchone()
 
     @with_connection
+    def get_user_by_id(self, id, cur):
+        cur.execute("SELECT * FROM users WHERE user_id="+str(id))
+        return cur.fetchone()
+
+    @with_connection
     def get_all_activities_names(self, cur):
         cur.execute("SELECT * FROM activity_names")
         return cur.fetchall()
