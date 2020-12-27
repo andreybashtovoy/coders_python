@@ -71,6 +71,7 @@ class UserStats:
             parse_mode="Markdown"
         )
         update.callback_query.message.delete()
+        #asd
 
     def update_main_message(self, update: Update, context: CallbackContext, user_id):
         user_data = DB.get_user_by_id(user_id)
