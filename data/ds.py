@@ -52,7 +52,7 @@ class DataMethods:
     @plot_and_return
     @with_connection
     def plot_time_with_benefit(self, user_id, con):
-        activities = pd.read_sql_query("SELECT * from activities WHERE user_id=858295159", con)
+        activities = pd.read_sql_query("SELECT * from activities WHERE user_id="+str(user_id), con)
         activities = activities.merge(self.activity_names[['id', 'challenge', 'name']], left_on="activity_id", right_on="id",
                                       how="inner")
 
