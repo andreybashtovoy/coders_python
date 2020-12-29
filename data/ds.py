@@ -52,15 +52,20 @@ class DataMethods:
     @plot_and_return
     @with_connection
     def plot_time_with_benefit(self, user_id, con):
-        activities = pd.read_sql_query("SELECT * from activities WHERE user_id=" + str(user_id), con)
-        activities = activities.merge(self.activity_names[['id', 'challenge']], left_on="activity_id", right_on="id",
+        activities = pd.read_sql_query("SELECT * from activities WHERE user_id=858295159", con)
+        activities = activities.merge(self.activity_names[['id', 'challenge', 'name']], left_on="activity_id", right_on="id",
                                       how="inner")
-        activities['date'] = activities.start_time.apply(lambda x: pd.Timestamp(x).strftime('%D'))
 
-        data = activities[activities.challenge == 1].groupby(by='date').duration.sum()
-        data_last = data[-7:]
-        sns.set_style('darkgrid')
-        ax = sns.barplot(x=data_last.index, y=data_last)
+        activities['date'] = activities.start_time.apply(lambda x: pd.Timestamp(x).strftime("%m-%d-%y"))
+
+        grouped = activities[~activities.activity_id.isin([0, 9])].groupby(by=["date", "name"]).duration.sum()
+
+        range_ = pd.date_range(end=pd.to_datetime("today").strftime("%m/%d/%y"), periods=21)
+
+        indicies = pd.Series(range_).apply(lambda x: pd.Timestamp(x).strftime("%m-%d-%y"))
+
+        sns.set()
+        ax = grouped.loc[indicies, :].unstack().plot(kind='bar', figsize=(10, 7), stacked=True)
         ax.set_xlabel('Дата')
         ax.set_ylabel('Время с пользой (часов)')
         ax.set_title('Время с пользой пользователя по дням')
