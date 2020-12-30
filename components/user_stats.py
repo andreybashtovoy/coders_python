@@ -37,6 +37,9 @@ class UserStats:
                 InlineKeyboardButton("🧩 Статистика всем занятиям", callback_data="🔴ф")
             ],
             [
+                InlineKeyboardButton("🛌 Стастика сна", callback_data="sleep "+str(user_id))
+            ],
+            [
                 InlineKeyboardButton("🤹‍♂️ Статистика по каждому занятию отдельно", callback_data="separated_stats")
             ],
             [
@@ -68,6 +71,34 @@ class UserStats:
         update.message.reply_text(text=self.get_message_text(user_data),
                                   parse_mode="Markdown",
                                   reply_markup=self.get_message_keyboard(user_data[0]))
+
+    def sleep_stats(self, update: Update, context: CallbackContext, user_id):
+        user_data = DB.get_user_by_id(user_id)
+
+        text = "🛌 *Статистика сна пользователя* "+user_data[3].replace("_"," ")+"\n\n" \
+               "⏱ Средняя продолжительность _9 часов 5 минут ± 1 часов 3 минут_\n" \
+               "🧿 Среднее время подъема: _9:43 ± 0 часов 14 минут_\n" \
+               "💤 Среднее время начала сна: _00:15 +- 1 часов 38 минут_"
+
+        keyboard = [
+            [
+                InlineKeyboardButton("🧮 Распределение продолжительности сна", callback_data="sleep_dist " + str(user_id))
+            ],
+            [
+                InlineKeyboardButton("📊 Продолжительность сна по дням",
+                                     callback_data="sleep_bar " + str(user_id))
+            ],
+            [
+                InlineKeyboardButton("◀️ Назад", callback_data="update_message " + str(user_id))
+            ]
+        ]
+
+
+        update.callback_query.edit_message_text(
+            text=text,
+            reply_markup=InlineKeyboardMarkup(keyboard),
+            parse_mode="Markdown"
+        )
 
     def resend_main_message(self, update: Update, context: CallbackContext, user_id):
         user_data = DB.get_user_by_id(user_id)
@@ -134,8 +165,11 @@ class UserStats:
             user_id = int(query.data.split()[1])
             self.update_main_message(update, context, user_id)
 
+        elif query.data.startswith('sleep'):
+            user_id = int(query.data.split()[1])
+            self.sleep_stats(update, context, user_id)
 
-        # query.delete_message()
+    # query.delete_message()
 
     def restart(self, update: Update, context):
         update.message.reply_text("До связи")
