@@ -70,7 +70,6 @@ class DataBase:
 
     @with_connection
     def get_user_useful_time(self, user_id, period, cur):
-        print(period)
 
         if period == 'week':
             period_sql = "AND a.start_time > DATE('now', 'localtime');"
