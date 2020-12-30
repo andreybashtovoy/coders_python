@@ -17,19 +17,16 @@ class UserStats:
         self.__separated_stats = SeparatedStats(updater)
 
     def get_message_text(self, user):
-        active_task = DB.get_active_task_user(user['user_id'])
-        task_icon = "🟢" if active_task['active'] else "🔴"
-        print('key error')
-        print(user)
-        return ("*📊 Статистика пользователя* _" + user['username'].replace("_", " ") + "_\n\n" +
-                task_icon + " У пользователя активно занятие \"_" + active_task['name'] + "_\" (" + active_task[
-                    'time'] + ")\n\n" +
-                "⏱ *Время с пользой*\n" +
-                "За сегодня: " + DB.get_user_useful_time(user['user_id'], 'today') + "\n" +
-                "За неделю: " + DB.get_user_useful_time(user['user_id'], 'week') + "\n" +
-                "За месяц: " + DB.get_user_useful_time(user['user_id'], 'month') + "\n" +
-                "За все время: " + DB.get_user_useful_time(user['user_id'], 'all') + "\n")
-        # return ("Hellow World")
+        active_task = DB.get_active_task_user(user[0])
+        task_icon = "🟢" if active_task[1] else "🔴"
+
+        return("*📊 Статистика пользователя* _"+user[3].replace("_"," ")+"_\n\n" +
+                                  task_icon +" У пользователя активно занятие \"_" + active_task[0] + "_\" (" + active_task[2] + ")\n\n" +
+                                  "⏱ *Время с пользой*\n" +
+                                  "За сегодня: " + DB.get_user_useful_time_today(user[0]) + "\n" +
+                                  "За неделю: " + DB.get_user_useful_time_week(user[0]) + "\n" +
+                                  "За месяц: " + DB.get_user_useful_time_month(user[0]) + "\n" +
+                                  "За все время: " + DB.get_user_useful_time_all(user[0]) + "\n")
 
     def get_message_keyboard(self, user_id):
         keyboard = [
@@ -38,6 +35,9 @@ class UserStats:
             ],
             [
                 InlineKeyboardButton("🧩 Статистика всем занятиям", callback_data="🔴ф")
+            ],
+            [
+                InlineKeyboardButton("🛌 Стастика сна", callback_data="sleep "+str(user_id))
             ],
             [
                 InlineKeyboardButton("🤹‍♂️ Статистика по каждому занятию отдельно", callback_data="separated_stats")
@@ -73,6 +73,34 @@ class UserStats:
                                   parse_mode="Markdown",
                                   reply_markup=self.get_message_keyboard(user_data['user_id']))
 
+    def sleep_stats(self, update: Update, context: CallbackContext, user_id):
+        user_data = DB.get_user_by_id(user_id)
+
+        text = "🛌 *Статистика сна пользователя* "+user_data[3].replace("_"," ")+"\n\n" \
+               "⏱ Средняя продолжительность _9 часов 5 минут ± 1 часов 3 минут_\n" \
+               "🧿 Среднее время подъема: _9:43 ± 0 часов 14 минут_\n" \
+               "💤 Среднее время начала сна: _00:15 +- 1 часов 38 минут_"
+
+        keyboard = [
+            [
+                InlineKeyboardButton("🧮 Распределение продолжительности сна", callback_data="sleep_dist " + str(user_id))
+            ],
+            [
+                InlineKeyboardButton("📊 Продолжительность сна по дням",
+                                     callback_data="sleep_bar " + str(user_id))
+            ],
+            [
+                InlineKeyboardButton("◀️ Назад", callback_data="update_message " + str(user_id))
+            ]
+        ]
+
+
+        update.callback_query.edit_message_text(
+            text=text,
+            reply_markup=InlineKeyboardMarkup(keyboard),
+            parse_mode="Markdown"
+        )
+
     def resend_main_message(self, update: Update, context: CallbackContext, user_id):
         user_data = DB.get_user_by_id(user_id)
         context.bot.send_message(
@@ -93,7 +121,7 @@ class UserStats:
         )
 
     def hello(self, update: Update, context: CallbackContext) -> None:
-        # context.bot.send_photo(update.effective_chat.id, Data.plot_sleep(update.effective_user.id))
+        #context.bot.send_photo(update.effective_chat.id, Data.plot_sleep(update.effective_user.id))
         context.bot.send_photo(update.effective_chat.id, Data.plot_time_with_benefit(update.effective_user.id))
 
     def get_chat_id(self, update: Update, context: CallbackContext) -> None:
@@ -137,7 +165,11 @@ class UserStats:
             user_id = int(query.data.split()[1])
             self.update_main_message(update, context, user_id)
 
-        # query.delete_message()
+        elif query.data.startswith('sleep'):
+            user_id = int(query.data.split()[1])
+            self.sleep_stats(update, context, user_id)
+
+    # query.delete_message()
 
     def restart(self, update: Update, context):
         update.message.reply_text("До связи")
