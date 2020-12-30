@@ -61,6 +61,13 @@ class DataBase:
         return cur.fetchall()
 
     @with_connection
+    def get_user_useful_time(self, user_id, period, cur):
+        cur.execute("SELECT an.name, a.start_time, a.activity_id FROM (SELECT * FROM activities WHERE user_id=" +
+                    str(user_id) + " AND duration=0) a " +
+                    "INNER JOIN activity_names an ON a.activity_id=an.id " +
+                    "INNER JOIN users u ON u.user_id=a.user_id")
+
+    @with_connection
     def get_user_useful_time_today(self, user_id, cur):
         cur.execute("SELECT SUM(a.duration) AS time, ac.duration, ac.start_time FROM (SELECT * FROM activities WHERE user_id=" + str(user_id) + ") a INNER JOIN activity_names an ON a.activity_id=an.id LEFT JOIN (SELECT * FROM activities WHERE duration=0) ac ON ac.user_id=a.user_id AND an.id = ac.activity_id WHERE an.challenge=1 AND a.start_time > DATE('now', 'localtime');")
 
