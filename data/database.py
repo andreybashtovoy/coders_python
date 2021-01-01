@@ -45,7 +45,7 @@ class DataBase:
 
 
         elif fcho['time'] is None:
-            return " 0 часов 0 минут"
+            return " 0 часов 0 минут 0 секунд"
 
         hours = floor(time_user) if time_user > 0 else floor(time_user)
         minutes = floor((time_user % 1) * 60)
