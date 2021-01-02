@@ -11,7 +11,7 @@
                 ⏱ Средняя продолжительность _{average_duration}_\n
                 🧿 Среднее время подъема: _{average_wake_up}_\n
                 💤 Среднее время начала сна: _{average_sleep_start}_' format="sleep_menu_format">
-        <PlotButton name="🧮 Распределение продолжительности сна" plot="plot_sleep"/>
-        <PlotButton name="📊 Продолжительность сна по дням" callback_data="all_tasks_by_days"/>
+        <PlotButton name="🧮 Распределение продолжительности сна" plot="plot_sleep_dist"/>
+        <PlotButton name="📊 Продолжительность сна по дням" plot="plot_sleep"/>
     </MenuButton>
 </MenuButton>

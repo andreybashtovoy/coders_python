@@ -60,6 +60,20 @@ class DataMethods:
 
     @plot_and_return
     @with_connection
+    def plot_sleep_dist(self, user_id, con):
+        activities = pd.read_sql_query("SELECT * from activities WHERE activity_id=9 AND user_id="+str(user_id), con)
+        activities['date'] = activities.start_time.apply(
+            lambda x: (pd.Timestamp(x) + pd.Timedelta("3 hours")).strftime("%m-%d-%y"))
+
+        grouped = activities.groupby(by=["date"]).duration.sum()
+
+        sns.set()
+        ax = sns.distplot(grouped)
+        ax.set_xlabel('Продолжительность сна')
+        ax.set_title('Распределение продолжительности сна')
+
+    @plot_and_return
+    @with_connection
     def plot_time_with_benefit(self, user_id, con):
         activities = pd.read_sql_query("SELECT * from activities WHERE user_id="+str(user_id), con)
         activities = activities.merge(self.activity_names[['id', 'challenge', 'name']], left_on="activity_id", right_on="id",
