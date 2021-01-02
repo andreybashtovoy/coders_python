@@ -3,6 +3,7 @@ from telegram.ext import CommandHandler, CallbackContext, CallbackQueryHandler, 
 from data.ds import Data
 import xml.etree.ElementTree as ET
 import re
+from data.ds import Data
 
 
 class Menu:
@@ -12,10 +13,6 @@ class Menu:
 
         self.index = 0
         self.index_elements(self.root)
-
-        for child in self.root:
-            print(child)
-            print(child.get('id'))
 
         updater.dispatcher.add_handler(CommandHandler(command, self.send))
         updater.dispatcher.add_handler(CallbackQueryHandler(self.on_button_click))
@@ -69,15 +66,18 @@ class Menu:
                                   parse_mode="Markdown",
                                   reply_markup=InlineKeyboardMarkup(keyboard))
 
-    def open_menu(self, id, state, update: Update):
+    def open_menu(self, id, state, update: Update, context: CallbackContext, resend=False):
         elem = self.root.find('.//*[@id="{}"]'.format(id)) if id != '0' else self.root
 
-        if elem.tag == "MenuButton":
+        text = None
+
+        if elem.get('text') is not None:
             text = elem.get('text').replace("\\n", "\n")
             text = re.sub("  +", "", text)
             if elem.get('format') is not None:
                 text = getattr(self, elem.attrib['format'])(text, update, state)
 
+        if elem.tag == "MenuButton":
             keyboard = []
 
             for child in elem:
@@ -88,15 +88,49 @@ class Menu:
                                                       callback_data="go&&&" + self.root.find(
                                                           './/*[@id="{}"]...'.format(id)).get('id') + "&&&" + self.get_state_string(state))])
 
-            update.callback_query.edit_message_text(
-                text=text,
-                reply_markup=InlineKeyboardMarkup(keyboard),
-                parse_mode="Markdown"
+            if not resend:
+                update.callback_query.edit_message_text(
+                    text=text,
+                    reply_markup=InlineKeyboardMarkup(keyboard),
+                    parse_mode="Markdown"
+                )
+            else:
+                context.bot.send_message(
+                    chat_id=update.effective_chat.id,
+                    reply_to_message_id=update.callback_query.message.reply_to_message.message_id,
+                    text=text,
+                    reply_markup=InlineKeyboardMarkup(keyboard),
+                    parse_mode="Markdown"
+                )
+
+                update.callback_query.message.delete()
+        elif elem.tag == "PlotButton":
+            keyboard = [
+                [
+                    InlineKeyboardButton("◀️ Назад", callback_data="back_resend&&&" + self.root.find(
+                                                          './/*[@id="{}"]...'.format(id)).get('id') + "&&&" +
+                                                                   self.get_state_string(state))
+                ]
+            ]
+
+            plot = getattr(Data, elem.attrib['plot'])(state['user_id'])
+
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            context.bot.send_photo(
+                chat_id=update.effective_chat.id,
+                reply_to_message_id=update.callback_query.message.reply_to_message.message_id,
+                photo=plot,
+                reply_markup=reply_markup
             )
+
+            update.callback_query.message.delete()
 
     def on_button_click(self, update: Update, context: CallbackContext):
         query = update.callback_query
 
         if query.data.startswith('go'):
             info = query.data.split('&&&')
-            self.open_menu(info[1], self.get_state_from_string(info[2]), update)
+            self.open_menu(info[1], self.get_state_from_string(info[2]), update, context)
+        elif query.data.startswith('back_resend'):
+            info = query.data.split('&&&')
+            self.open_menu(info[1], self.get_state_from_string(info[2]), update, context, resend=True)
