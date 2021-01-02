@@ -133,6 +133,9 @@ class DataMethods:
         seconds = activities.start_time.apply(self.to_seconds)
         time = seconds[~seconds.between(60 * 60 * 6, 60 * 60 * 19)]
 
+        if len(time) == 0:
+            return "ХЗ", "ХЗ"
+
         mean = ":".join(self.seconds_to_str(time.mean()))
         std = ":".join(self.seconds_to_str(np.std(time)))
 
@@ -153,6 +156,9 @@ class DataMethods:
         seconds = activities.apply(get_seconds, axis=1)
 
         time = seconds[seconds.between(60 * 60 * 5, 60 * 60 * 14)]
+
+        if len(time) == 0:
+            return "ХЗ", "ХЗ"
 
 
         mean = ":".join(self.seconds_to_str(time.mean()))
