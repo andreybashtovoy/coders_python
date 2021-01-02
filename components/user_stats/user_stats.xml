@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
-<menu text='*📊 Статистика пользователя* _{username}_\n\n
+<MenuButton text='*📊 Статистика пользователя* _{username}_\n\n
                 {task_icon} У пользователя активно занятие "_{active_task}_" ({task_time})\n\n
                 ⏱ *Время с пользой*\n
                 За сегодня: {today}\n
                 За неделю: {week}\n
                 За месяц: {month}\n
-                За все время: {all}\n' format="main_menu">
+                За все время: {all}\n' format="main_menu_format" initial_state="initial_state">
     <PlotButton name="📅 Полезное время по дням" callback_data="all_tasks_by_days"/>
     <MenuButton name="🛌 Стастика сна" text='🛌 *Статистика сна пользователя* {username}\n\n
                 ⏱ Средняя продолжительность _{average_duration}_\n
                 🧿 Среднее время подъема: _{average_wake_up}_\n
-                💤 Среднее время начала сна: _{average_sleep_start}_'>
+                💤 Среднее время начала сна: _{average_sleep_start}_' format="sleep_menu_format">
         <PlotButton name="🧮 Распределение продолжительности сна" callback_data="all_tasks_by_days"/>
         <PlotButton name="📊 Продолжительность сна по дням" callback_data="all_tasks_by_days"/>
     </MenuButton>
-</menu>
+</MenuButton>

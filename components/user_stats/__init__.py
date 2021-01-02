@@ -12,7 +12,7 @@ class UserStats:
         updater.dispatcher.add_handler(CommandHandler('test', self.hello))
         updater.dispatcher.add_handler(CommandHandler('get_chat_id', self.get_chat_id))
         updater.dispatcher.add_handler(CommandHandler('restart', self.restart))
-        updater.dispatcher.add_handler(CallbackQueryHandler(self.on_button_click))
+        #updater.dispatcher.add_handler(CallbackQueryHandler(self.on_button_click))
         self.__updater = updater
         self.__separated_stats = SeparatedStats(updater)
 

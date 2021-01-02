@@ -19,7 +19,7 @@ import components.user_stats
 class SeparatedStats:
     def __init__(self, updater: Updater):
         self.__updater = updater
-        updater.dispatcher.add_handler(CallbackQueryHandler(self.on_page_button_click))
+        #updater.dispatcher.add_handler(CallbackQueryHandler(self.on_page_button_click))
 
     # shows multiple buttons to look at detailed information about tasks
     def show_separated_stats(self, update: Update) -> None:
