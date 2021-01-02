@@ -41,13 +41,22 @@ class DataMethods:
     @plot_and_return
     @with_connection
     def plot_sleep(self, user_id, con):
-        durations = \
-        pd.read_sql_query("SELECT * from activities WHERE activity_id=9 and user_id=" + str(user_id),
-                          con)['duration']
+        activities = pd.read_sql_query("SELECT * from activities WHERE activity_id=9 AND user_id="+str(user_id), con)
+        activities['date'] = activities.start_time.apply(lambda x: (pd.Timestamp(x) + pd.Timedelta("3 hours")).strftime("%m-%d-%y"))
 
-        sns.set_style("darkgrid")
-        sns.set_color_codes()
-        sns.distplot(durations, color='y')
+        grouped = activities.groupby(by=["date"]).duration.sum()
+
+        range_ = pd.date_range(end=pd.to_datetime("today").strftime("%m/%d/%y"), periods=7)
+
+        indicies = pd.Series(range_).apply(lambda x: pd.Timestamp(x).strftime("%m-%d-%y"))
+
+        indicies = np.intersect1d(indicies, grouped.index)
+
+        sns.set()
+        ax = grouped.loc[indicies].plot(kind='bar', figsize=(10, 7))
+        ax.set_xlabel('Дата')
+        ax.set_ylabel('Продолжительность сна (Часов)')
+        ax.set_title('Продолжительность сна по дням')
 
     @plot_and_return
     @with_connection
