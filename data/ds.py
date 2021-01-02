@@ -115,6 +115,9 @@ class DataMethods:
     def get_average_sleep_duration(self, user_id, con):
         activities = pd.read_sql_query("SELECT * from activities WHERE activity_id=9 AND user_id=" + str(user_id), con)
 
+        if activities.shape[0] == 0:
+            return "ХЗ", "ХЗ"
+
         mean = ":".join(self.seconds_to_str(activities.duration.mean() * 60 * 60))
         std = ":".join(self.seconds_to_str(activities.duration.std() * 60 * 60))
 
@@ -124,13 +127,14 @@ class DataMethods:
     def get_average_sleep_start_time(self, user_id, con):
         activities = pd.read_sql_query("SELECT * from activities WHERE activity_id=9 AND user_id=" + str(user_id), con)
 
-        seconds = activities.start_time.apply(self.to_seconds)
-        time = seconds[~seconds.between(60 * 60 * 6, 60 * 60 * 19)]
-        if len(time) == 0:
+        if activities.shape[0] == 0:
             return "ХЗ", "ХЗ"
 
+        seconds = activities.start_time.apply(self.to_seconds)
+        time = seconds[~seconds.between(60 * 60 * 6, 60 * 60 * 19)]
+
         mean = ":".join(self.seconds_to_str(time.mean()))
-        std = ":".join(self.seconds_to_str(time.std()))
+        std = ":".join(self.seconds_to_str(np.std(time)))
 
         return mean, std
 
@@ -140,15 +144,19 @@ class DataMethods:
 
         def get_seconds(row):
             sec = self.to_seconds(row.start_time) + row.duration*60*60
-            sec = sec % 60 * 60 * 24
+            sec = sec % (60 * 60 * 24)
             return sec
 
-        seconds = activities.apply(get_seconds, axis=1)
-        time = seconds[seconds.between(60 * 60 * 5, 60 * 60 * 14)]
-        if len(time) == 0:
+        if activities.shape[0] == 0:
             return "ХЗ", "ХЗ"
+
+        seconds = activities.apply(get_seconds, axis=1)
+
+        time = seconds[seconds.between(60 * 60 * 5, 60 * 60 * 14)]
+
+
         mean = ":".join(self.seconds_to_str(time.mean()))
-        std = ":".join(self.seconds_to_str(time.std()))
+        std = ":".join(self.seconds_to_str(np.std(time)))
 
         return mean, std
 
