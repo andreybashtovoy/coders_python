@@ -2,6 +2,7 @@ from components.menu import Menu
 from telegram import Update
 from telegram.ext import Updater
 from data.database import DB
+from data.ds import Data
 
 
 class UserStats(Menu):
@@ -43,9 +44,14 @@ class UserStats(Menu):
 
     def sleep_menu_format(self, message_text, update: Update, state):
         user = DB.get_user_by_id(state['user_id'])
+
+        duration = Data.get_average_sleep_duration(state['user_id'])
+        start_sleep = Data.get_average_sleep_start_time(state['user_id'])
+        wake_up = Data.get_average_wake_up_time(user['user_id'])
+
         return message_text.format(
             username=user['username'].replace("_", " "),
-            average_duration="_9 часов 5 минут ± 1 часов 3 минут_",
-            average_wake_up="_9:43 ± 0 часов 14 минут_",
-            average_sleep_start="_00:15 +- 1 часов 38 минут_"
+            average_duration="_{} ± {}_".format(*duration),
+            average_wake_up="_{} ± {}_".format(*wake_up),
+            average_sleep_start="_{} ± {}_".format(*start_sleep)
         )

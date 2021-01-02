@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from io import BytesIO
 import json
+import datetime
+from math import floor
 
 f = open('bot_data.json')
 json_object = json.load(f)
@@ -92,6 +94,58 @@ class DataMethods:
         ax.set_xlabel('Дата')
         ax.set_ylabel('Время с пользой (часов)')
         ax.set_title('Время с пользой пользователя по дням')
+
+    def to_seconds(self, x):
+        val = pd.to_datetime(x).time()
+        seconds = int(datetime.timedelta(hours=val.hour, minutes=val.minute, seconds=val.second).total_seconds())
+        if seconds > 60 * 60 * 21:
+            seconds = seconds - 60 * 60 * 24
+
+        return seconds
+
+    def seconds_to_str(self, seconds):
+        hours = floor(seconds / 60 / 60)
+        minutes = floor(seconds / 60) - floor(seconds / 60 / 60) * 60
+
+        hours_str = str(hours) if len(str(hours)) == 2 else "0" + str(hours)
+        minutes_str = str(minutes) if len(str(minutes)) == 2 else "0" + str(minutes)
+        return hours_str, minutes_str
+
+    @with_connection
+    def get_average_sleep_duration(self, user_id, con):
+        activities = pd.read_sql_query("SELECT * from activities WHERE activity_id=9 AND user_id=" + str(user_id), con)
+
+        mean = ":".join(self.seconds_to_str(activities.duration.mean() * 60 * 60))
+        std = ":".join(self.seconds_to_str(activities.duration.std() * 60 * 60))
+
+        return mean, std
+
+    @with_connection
+    def get_average_sleep_start_time(self, user_id, con):
+        activities = pd.read_sql_query("SELECT * from activities WHERE activity_id=9 AND user_id=" + str(user_id), con)
+
+        seconds = activities.start_time.apply(self.to_seconds)
+        time = seconds[~seconds.between(60 * 60 * 6, 60 * 60 * 19)]
+        mean = ":".join(self.seconds_to_str(time.mean()))
+        std = ":".join(self.seconds_to_str(time.std()))
+
+        return mean, std
+
+    @with_connection
+    def get_average_wake_up_time(self, user_id, con):
+        activities = pd.read_sql_query("SELECT * from activities WHERE activity_id=9 AND user_id=" + str(user_id), con)
+
+        def get_seconds(row):
+            sec = self.to_seconds(row.start_time) + row.duration*60*60
+            sec = sec % 60 * 60 * 24
+            return sec
+
+        seconds = activities.apply(get_seconds, axis=1)
+        time = seconds[seconds.between(60 * 60 * 5, 60 * 60 * 14)]
+        mean = ":".join(self.seconds_to_str(time.mean()))
+        std = ":".join(self.seconds_to_str(time.std()))
+
+        return mean, std
 
 
 
