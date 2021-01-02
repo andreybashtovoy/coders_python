@@ -5,7 +5,7 @@
                 За сегодня: {today}\n
                 За неделю: {week}\n
                 За месяц: {month}\n
-                За все время: {all}\n' format="main_menu_format" initial_state="initial_state">
+                За все время: {all}\n' format="main_menu_format" initial_state="initial_state" update_button="True">
     <PlotButton name="📅 Полезное время по дням" plot="plot_time_with_benefit"/>
     <MenuButton name="🛌 Стастика сна" text='🛌 *Статистика сна пользователя* {username}\n\n
                 ⏱ Средняя продолжительность _{average_duration}_\n

@@ -51,22 +51,9 @@ class Menu:
         else:
             state = {}
 
-        text = self.root.attrib['text'].replace("\\n", "\n")
-        text = re.sub("  +", "", text)
-        text = getattr(self, self.root.attrib['format'])(text, update, state)
+        self.open_menu('0', state, update, context, send=True)
 
-        keyboard = []
-
-        for child in self.root:
-            keyboard.append([InlineKeyboardButton(child.attrib['name'],
-                                                  callback_data="go&&&" + child.get('id') + "&&&" +
-                                                                self.get_state_string(state))])
-
-        update.message.reply_text(text=text,
-                                  parse_mode="Markdown",
-                                  reply_markup=InlineKeyboardMarkup(keyboard))
-
-    def open_menu(self, id, state, update: Update, context: CallbackContext, resend=False):
+    def open_menu(self, id, state, update: Update, context: CallbackContext, resend=False, send=False):
         elem = self.root.find('.//*[@id="{}"]'.format(id)) if id != '0' else self.root
 
         text = None
@@ -82,19 +69,26 @@ class Menu:
 
             for child in elem:
                 keyboard.append([InlineKeyboardButton(child.attrib['name'],
-                                                      callback_data="go&&&" + child.get('id') + "&&&" + self.get_state_string(state))])
+                                                      callback_data="go&&&" + child.get(
+                                                          'id') + "&&&" + self.get_state_string(state))])
+
+            if elem.get('update_button') is not None:
+                keyboard.append([InlineKeyboardButton("🔄 Обновить",
+                                                      callback_data="go&&&" + elem.get(
+                                                          'id') + "&&&" + self.get_state_string(state))])
+
             if id != '0':
                 keyboard.append([InlineKeyboardButton("◀️ Назад",
                                                       callback_data="go&&&" + self.root.find(
-                                                          './/*[@id="{}"]...'.format(id)).get('id') + "&&&" + self.get_state_string(state))])
+                                                          './/*[@id="{}"]...'.format(id)).get(
+                                                          'id') + "&&&" + self.get_state_string(state))])
 
-            if not resend:
-                update.callback_query.edit_message_text(
+            if send:
+                update.message.reply_text(
                     text=text,
-                    reply_markup=InlineKeyboardMarkup(keyboard),
-                    parse_mode="Markdown"
-                )
-            else:
+                    parse_mode="Markdown",
+                    reply_markup=InlineKeyboardMarkup(keyboard))
+            elif resend:
                 context.bot.send_message(
                     chat_id=update.effective_chat.id,
                     reply_to_message_id=update.callback_query.message.reply_to_message.message_id,
@@ -104,11 +98,17 @@ class Menu:
                 )
 
                 update.callback_query.message.delete()
+            else:
+                update.callback_query.edit_message_text(
+                    text=text,
+                    reply_markup=InlineKeyboardMarkup(keyboard),
+                    parse_mode="Markdown"
+                )
         elif elem.tag == "PlotButton":
             keyboard = [
                 [
                     InlineKeyboardButton("◀️ Назад", callback_data="back_resend&&&" + self.root.find(
-                                                          './/*[@id="{}"]...'.format(id)).get('id') + "&&&" +
+                        './/*[@id="{}"]...'.format(id)).get('id') + "&&&" +
                                                                    self.get_state_string(state))
                 ]
             ]
