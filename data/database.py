@@ -72,11 +72,11 @@ class DataBase:
     def get_user_useful_time(self, user_id, period, cur):
 
         if period == 'week':
-            period_sql = "AND a.start_time > DATE('now', 'localtime');"
+            period_sql = "AND a.start_time > DATE('now', 'localtime', 'weekday 1', '-7 days');"
         elif period == 'month':
             period_sql = "AND a.start_time > DATE('now', 'localtime', 'start of month');"
         elif period == 'today':
-            period_sql = "AND a.start_time > DATE('now', 'localtime', 'start of month');"
+            period_sql = "AND a.start_time > DATE('now', 'localtime');"
         else:
             period_sql = ";"
 
@@ -112,6 +112,29 @@ class DataBase:
             'active': True if fcho['activity_id'] != 0 else False,
             'time': time
         }
+
+    @with_connection
+    def get_rating(self, period, cur):
+        condition = ""
+
+        if period == "month":
+            condition = "AND p.start_time > DATE('now', 'localtime', 'start of month')"
+        elif period == "week":
+            condition = "AND p.start_time > DATE('now', 'localtime', 'weekday 1', '-7 days')"
+        elif period == "day":
+            condition = "AND p.start_time > DATE('now', 'localtime')"
+
+        cur.execute("SELECT main.*, act.challenge FROM (SELECT p.user_id,u.username,SUM(p.duration) AS sum, a.activity_id AS current_activity, " +
+                    "a.start_time AS current_start_time " +
+                    "FROM activities p " +
+                    "JOIN activity_names an on p.activity_id = an.id " +
+                    "JOIN users u on p.user_id = u.user_id " +
+                    "JOIN (SELECT * FROM activities WHERE duration=0) a on p.user_id = a.user_id " +
+                    "WHERE an.challenge = 1 " + condition +
+                    "GROUP BY p.user_id) main " +
+                    "JOIN activity_names act ON main.current_activity = act.id;")
+
+        return cur.fetchall()
 
 
 DB = DataBase()
