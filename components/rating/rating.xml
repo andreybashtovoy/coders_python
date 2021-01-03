@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<SwitchMenu update_button="True">
+    <SwitchButton name="За все время" text="📈 Рейтинг всех участников по времени с пользой за сегодня:\n\n
+                1. 🔴 *cherriesby*: 1 часов 57 минут.\n
+                2. 🟢 *Ethsfn*: 1 часов 33 минут.\n
+                3. 🔴 *andrey_bashtovoy*: 0 часов 52 минут.\n
+                4. 🔴 *sbarabas*: 0 часов 13 минут."/>
+    <SwitchButton name="За месяц" text="Лол"/>
+    <SwitchButton name="За неделю" text="Кек"/>
+    <SwitchButton name="За день" text="Чебурек"/>
+</SwitchMenu>

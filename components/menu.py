@@ -1,5 +1,6 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CommandHandler, CallbackContext, CallbackQueryHandler, Updater
+
 from data.ds import Data
 import xml.etree.ElementTree as ET
 import re
@@ -10,12 +11,12 @@ class Menu:
     def __init__(self, updater: Updater, file_url, command):
         tree = ET.parse(file_url)
         self.root = tree.getroot()
+        self.command = command
 
         self.index = 0
         self.index_elements(self.root)
 
         updater.dispatcher.add_handler(CommandHandler(command, self.send))
-        updater.dispatcher.add_handler(CallbackQueryHandler(self.on_button_click))
 
     def index_elements(self, elem):
         elem.set("id", str(self.index))
@@ -51,20 +52,70 @@ class Menu:
         else:
             state = {}
 
-        self.open_menu('0', state, update, context, send=True)
+        menu_id = '0'
+
+        if self.root.tag == "SwitchMenu":
+            state['opened_menu'] = '1'
+            menu_id = '1'
+
+        self.open_menu(menu_id, state, update, context, send=True)
 
     def open_menu(self, id, state, update: Update, context: CallbackContext, resend=False, send=False):
         elem = self.root.find('.//*[@id="{}"]'.format(id)) if id != '0' else self.root
 
-        text = None
+        def get_text(e):
+            text = None
 
-        if elem.get('text') is not None:
-            text = elem.get('text').replace("\\n", "\n")
-            text = re.sub("  +", "", text)
-            if elem.get('format') is not None:
-                text = getattr(self, elem.attrib['format'])(text, update, state)
+            if e.get('text') is not None:
+                text = e.get('text').replace("\\n", "\n")
+                text = re.sub("  +", "", text)
+                if e.get('format') is not None:
+                    text = getattr(self, e.attrib['format'])(text, update, state)
+
+            return text
+
+        def send_message(message_text, message_keyboard):
+            if send:
+                update.message.reply_text(
+                    text=message_text,
+                    parse_mode="Markdown",
+                    reply_markup=InlineKeyboardMarkup(message_keyboard))
+            elif resend:
+                context.bot.send_message(
+                    chat_id=update.effective_chat.id,
+                    reply_to_message_id=update.callback_query.message.reply_to_message.message_id,
+                    text=message_text,
+                    reply_markup=InlineKeyboardMarkup(message_keyboard),
+                    parse_mode="Markdown"
+                )
+
+                update.callback_query.message.delete()
+            else:
+                update.callback_query.edit_message_text(
+                    text=message_text,
+                    reply_markup=InlineKeyboardMarkup(message_keyboard),
+                    parse_mode="Markdown"
+                )
+
+        if elem.tag == "SwitchButton":
+            text = get_text(elem)
+            keyboard = []
+
+            parent = self.root.find('.//*[@id="{}"]...'.format(state['opened_menu']))
+
+            for child in parent:
+                keyboard.append([InlineKeyboardButton(child.attrib['name'],
+                                                      callback_data="switch&&&" + child.get(
+                                                          'id') + "&&&" + self.get_state_string(state))])
+
+            if parent.get('update_button') is not None:
+                keyboard.append([InlineKeyboardButton("🔄 Обновить",
+                                                      callback_data="switch&&&" + state['opened_menu'] + "&&&" + self.get_state_string(state))])
+
+            send_message(text, keyboard)
 
         if elem.tag == "MenuButton":
+            text = get_text(elem)
             keyboard = []
 
             for child in elem:
@@ -83,27 +134,7 @@ class Menu:
                                                           './/*[@id="{}"]...'.format(id)).get(
                                                           'id') + "&&&" + self.get_state_string(state))])
 
-            if send:
-                update.message.reply_text(
-                    text=text,
-                    parse_mode="Markdown",
-                    reply_markup=InlineKeyboardMarkup(keyboard))
-            elif resend:
-                context.bot.send_message(
-                    chat_id=update.effective_chat.id,
-                    reply_to_message_id=update.callback_query.message.reply_to_message.message_id,
-                    text=text,
-                    reply_markup=InlineKeyboardMarkup(keyboard),
-                    parse_mode="Markdown"
-                )
-
-                update.callback_query.message.delete()
-            else:
-                update.callback_query.edit_message_text(
-                    text=text,
-                    reply_markup=InlineKeyboardMarkup(keyboard),
-                    parse_mode="Markdown"
-                )
+            send_message(text, keyboard)
         elif elem.tag == "PlotButton":
             keyboard = [
                 [
@@ -134,3 +165,8 @@ class Menu:
         elif query.data.startswith('back_resend'):
             info = query.data.split('&&&')
             self.open_menu(info[1], self.get_state_from_string(info[2]), update, context, resend=True)
+        elif query.data.startswith("switch"):
+            info = query.data.split('&&&')
+            state = self.get_state_from_string(info[2])
+            state['opened_menu'] = info[1]
+            self.open_menu(info[1], state, update, context)
