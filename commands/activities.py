@@ -88,7 +88,7 @@ class Activities:
         if len(msg) > 1 and msg[1].isnumeric() and 0 < int(msg[1]) < 1000:
             self.start_activity(update.message.from_user.id, "Ничего", update, context, penalty=int(msg[1]))
         else:
-            update.message.reply_text("Введи _/penalty *время в минутах*_, чтобы завершить текущее занятие со штрафом.",
+            update.message.reply_text("Введи _/p *время в минутах*_, чтобы завершить текущее занятие со штрафом.",
                                       parse_mode="Markdown")
 
     def start_activity(self, user_id, name, update: Update, context: CallbackContext, penalty=0):
