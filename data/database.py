@@ -20,6 +20,7 @@ def with_connection(func):
         con.row_factory = dict_factory
         cur = con.cursor()
         return_value = func(*args, **kwargs, cur=cur)
+        con.commit()
         con.close()
         return return_value
 
@@ -64,7 +65,7 @@ class DataBase:
         return cur.fetchone()
 
     @with_connection
-    def get_all_activities_names(self, cur):
+    def get_all_activity_names(self, cur):
         cur.execute("SELECT * FROM activity_names")
         return cur.fetchall()
 
@@ -124,17 +125,42 @@ class DataBase:
         elif period == "day":
             condition = "AND p.start_time > DATE('now', 'localtime')"
 
-        cur.execute("SELECT main.*, act.challenge FROM (SELECT p.user_id,u.username,SUM(p.duration) AS sum, a.activity_id AS current_activity, " +
-                    "a.start_time AS current_start_time " +
-                    "FROM activities p " +
-                    "JOIN activity_names an on p.activity_id = an.id " +
-                    "JOIN users u on p.user_id = u.user_id " +
-                    "JOIN (SELECT * FROM activities WHERE duration=0) a on p.user_id = a.user_id " +
-                    "WHERE an.challenge = 1 " + condition +
-                    "GROUP BY p.user_id) main " +
-                    "JOIN activity_names act ON main.current_activity = act.id;")
+        cur.execute(
+            "SELECT main.*, act.challenge FROM (SELECT p.user_id,u.username,SUM(p.duration) AS sum, a.activity_id AS current_activity, " +
+            "a.start_time AS current_start_time " +
+            "FROM activities p " +
+            "JOIN activity_names an on p.activity_id = an.id " +
+            "JOIN users u on p.user_id = u.user_id " +
+            "JOIN (SELECT * FROM activities WHERE duration=0) a on p.user_id = a.user_id " +
+            "WHERE an.challenge = 1 " + condition +
+            "GROUP BY p.user_id) main " +
+            "JOIN activity_names act ON main.current_activity = act.id;")
 
         return cur.fetchall()
+
+    @with_connection
+    def count_user_activities(self, user_id, cur):
+        cur.execute("SELECT main.*, act.name FROM (SELECT activity_id, COUNT(*) as count FROM activities " +
+                    "WHERE user_id=" + str(user_id) + " AND activity_id != 0 " +
+                    "GROUP BY activity_id " +
+                    "ORDER BY count desc) main " +
+                    "JOIN activity_names act ON main.activity_id = act.id")
+
+        return cur.fetchall()
+
+    @with_connection
+    def get_active_activity(self, user_id, cur):
+        cur.execute(
+            "SELECT main.*, an.name FROM (SELECT * FROM activities WHERE duration=0 AND user_id=" + str(user_id) +
+            ") main JOIN activity_names an ON main.activity_id = an.id")
+        return cur.fetchone()
+
+    @with_connection
+    def start_activity(self, user_id, name, duration, cur):
+        cur.execute("UPDATE activities SET duration=" + str(duration) + " WHERE duration=0 AND user_id=" + str(user_id) + ";")
+        cur.execute("INSERT INTO activities(user_id, activity_id) VALUES(" + str(user_id) + ", (SELECT id FROM " +
+                    "activity_names WHERE " +
+                    "name='" + name + "'));")
 
 
 DB = DataBase()

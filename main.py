@@ -5,6 +5,7 @@ import json
 from components.user_stats import UserStats
 from components.rating import Rating
 from commands import CommandHandlers
+from commands.activities import Activities
 
 warnings.filterwarnings('ignore')
 
@@ -16,6 +17,7 @@ if __name__ == "__main__":
 
     updater.bot.send_message(-1001243947001, "О связь есть")
 
+    Activities(updater)
     menus = [UserStats(updater), Rating(updater)]
 
     def button_click_handler(update: Update, context: CallbackContext):
