@@ -9,6 +9,7 @@ class Activities:
     def __init__(self, updater: Updater):
         updater.dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, self.on_message))
         updater.dispatcher.add_handler(CommandHandler('keyboard', self.send_keyboard_to_all))
+        updater.dispatcher.add_handler(CommandHandler('p', self.penalty))
 
     def get_keyboard_list_by_names(self, names):
         keyboard = list()
@@ -62,9 +63,9 @@ class Activities:
         return ReplyKeyboardMarkup(keyboard, selective=True)
 
     def get_string_by_duration(self, duration):
-        hours = floor(duration) if duration > 0 else floor(duration)
-        minutes = floor((duration % 1) * 60)
-        seconds = floor((((duration % 1) * 60) % 1) * 60)
+        hours = floor(duration) if duration > 0 else ceil(duration)
+        minutes = floor((abs(duration) % 1) * 60)
+        seconds = floor((((abs(duration) % 1) * 60) % 1) * 60)
 
         return "{} часов {} минут {} секунд".format(hours, minutes, seconds)
 
@@ -79,40 +80,45 @@ class Activities:
             name = activity_names[0]['name']
 
         if name in names:
-            stopped_activity = self.start_activity(update.message.from_user.id, name)
+            self.start_activity(update.message.from_user.id, name, update, context)
 
-            if stopped_activity is not None and stopped_activity['activity_id'] != 0:
-                update.message.reply_text(
-                    text="✅ Занятие завершено ({})\n\n⏱ Продолжительность: {}.".format(
-                        stopped_activity['name'],
-                        self.get_string_by_duration(stopped_activity['duration'])
-                    ),
-                    parse_mode="Markdown"
-                )
+    def penalty(self, update: Update, context: CallbackContext):
+        msg = update.message.text.split()
 
-            if name != activity_names[0]['name']:
-                update.message.reply_text(
-                    text="🧾 Ты начал занятие \"{}\".".format(name),
-                    reply_markup=self.get_user_keyboard(update.message.from_user.id))
+        if len(msg) > 1 and msg[1].isnumeric() and 0 < int(msg[1]) < 1000:
+            self.start_activity(update.message.from_user.id, "Ничего", update, context, penalty=int(msg[1]))
+        else:
+            update.message.reply_text("Введи _/penalty *время в минутах*_, чтобы завершить текущее занятие со штрафом.",
+                                      parse_mode="Markdown")
 
-    def start_activity(self, user_id, name):
+    def start_activity(self, user_id, name, update: Update, context: CallbackContext, penalty=0):
         active_activity = DB.get_active_activity(user_id)
 
         stopped_activity = None
-        
+
         duration = 0
 
         if active_activity is not None:
             data_now = datetime.datetime.now()
             data_start = datetime.datetime.strptime(active_activity['start_time'], '%Y-%m-%d %H:%M:%S')
-            duration = (data_now - data_start).seconds / 3600
+            duration = (data_now - data_start).seconds / 3600 - penalty/60
 
             stopped_activity = active_activity
             stopped_activity['duration'] = duration
-        
+
         DB.start_activity(user_id, name, duration)
-        
-        return stopped_activity
 
+        if stopped_activity is not None and stopped_activity['activity_id'] != 0:
+            update.message.reply_text(
+                text="✅ Занятие завершено ({})\n\n⏱ Продолжительность: {}.".format(
+                    stopped_activity['name'],
+                    self.get_string_by_duration(stopped_activity['duration'])
+                ),
+                parse_mode="Markdown",
+                reply_markup=self.get_user_keyboard(update.message.from_user.id)
+            )
 
-
+        if name != "Ничего":
+            update.message.reply_text(
+                text="🧾 Ты начал занятие \"{}\".".format(name),
+                reply_markup=self.get_user_keyboard(update.message.from_user.id))
