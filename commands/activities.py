@@ -8,6 +8,40 @@ from math import floor, ceil
 class Activities:
     def __init__(self, updater: Updater):
         updater.dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, self.on_message))
+        updater.dispatcher.add_handler(CommandHandler('keyboard', self.send_keyboard_to_all))
+
+    def get_keyboard_list_by_names(self, names):
+        keyboard = list()
+        i = 0
+
+        for name in names:
+            if i % 2 == 0:
+                keyboard.append([KeyboardButton(text=name)])
+            else:
+                keyboard[i // 2].append(KeyboardButton(text=name))
+            i += 1
+
+        keyboard.insert(0, [
+            KeyboardButton(text="⏯"),
+            KeyboardButton(text="⏹"),
+            KeyboardButton(text="🔄")
+        ])
+
+        return keyboard
+
+    def send_keyboard_to_all(self, update: Update, context: CallbackContext):
+        activity_names = DB.get_all_activity_names()
+
+        names = []
+
+        for activity in activity_names:
+            if activity['id'] != 0:
+                names.append(activity['name'])
+
+        keyboard = self.get_keyboard_list_by_names(names)
+
+        update.message.reply_text(text="ok",
+                                  reply_markup=ReplyKeyboardMarkup(keyboard))
 
     def get_user_keyboard(self, user_id):
         activity_names = DB.get_all_activity_names()
@@ -23,22 +57,7 @@ class Activities:
             if activity['name'] not in names and activity['id'] != 0:
                 names.append(activity['name'])
 
-        keyboard = []
-
-        i = 0
-
-        for name in names:
-            if i % 2 == 0:
-                keyboard.append([KeyboardButton(text=name)])
-            else:
-                keyboard[i // 2].append(KeyboardButton(text=name))
-            i += 1
-
-        keyboard.insert(0, [
-            KeyboardButton(text="⏯"),
-            KeyboardButton(text="⏹"),
-            KeyboardButton(text="🔄")
-        ])
+        keyboard = self.get_keyboard_list_by_names(names)
 
         return ReplyKeyboardMarkup(keyboard, selective=True)
 
