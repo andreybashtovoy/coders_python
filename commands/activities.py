@@ -81,7 +81,7 @@ class Activities:
         if name in names:
             stopped_activity = self.start_activity(update.message.from_user.id, name)
 
-            if stopped_activity is not None and stopped_activity['id'] != 0:
+            if stopped_activity is not None and stopped_activity['activity_id'] != 0:
                 update.message.reply_text(
                     text="✅ Занятие завершено ({})\n\n⏱ Продолжительность: {}.".format(
                         stopped_activity['name'],
