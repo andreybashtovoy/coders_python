@@ -27,10 +27,10 @@ class Menu:
     def get_state_string(self, state):
         string = ""
         for key in state:
-            string = string + key + ":::" + str(state[key]) + "|||"
+            string = string + key + "^" + str(state[key]) + "|"
 
-        if string.endswith('|||'):
-            string = string[:-3]
+        if string.endswith('|'):
+            string = string[:-1]
 
         return string
 
@@ -39,8 +39,8 @@ class Menu:
             return {}
 
         state = {}
-        for obj in string.split('|||'):
-            temp = obj.split(":::")
+        for obj in string.split('|'):
+            temp = obj.split("^")
             state[temp[0]] = temp[1]
 
         return state
@@ -59,6 +59,16 @@ class Menu:
             menu_id = '1'
 
         self.open_menu(menu_id, state, update, context, send=True)
+
+    def action_callback(self, elem_id, state, update: Update, context: CallbackContext) -> bool:
+        if elem_id == "c":
+            return getattr(self, "check")(update, state)
+
+        elem = self.root.find('.//*[@id="{}"]'.format(elem_id))
+        if elem.get('callback') is not None:
+            return getattr(self, elem.get('callback'))(update, state)
+
+        return True
 
     def open_menu(self, id, state, update: Update, context: CallbackContext, resend=False, send=False):
         elem = self.root.find('.//*[@id="{}"]'.format(id)) if id != '0' else self.root
@@ -97,6 +107,41 @@ class Menu:
                     parse_mode="Markdown"
                 )
 
+        def get_button(child, parent, state, row_child=None):
+            if child is None:
+                new_state = getattr(self, row_child['action'])(state.copy(), update, row_child['name'])
+                return InlineKeyboardButton(row_child['name'],
+                                            callback_data="action&" + parent.get(
+                                                'id') + "&" + self.get_state_string(new_state) + '&c')
+            elif child.tag == "SwitchButton":
+                return InlineKeyboardButton(child.attrib['name'],
+                                            callback_data="switch&" + child.get(
+                                                'id') + "&" + self.get_state_string(state))
+            elif child.tag == "ActionButton":
+                if child.get('is_hidden') is not None:
+                    is_hidden = getattr(self, child.get('is_hidden'))(state.copy(), update)
+                    if is_hidden:
+                        return None
+
+                if child.get('action') is not None:
+                    new_state = getattr(self, child.get('action'))(state.copy(), update)
+                else:
+                    new_state = state
+
+                prevent_edit = ""
+
+                if state == new_state:
+                    prevent_edit = "&1"
+
+                return InlineKeyboardButton(child.attrib['name'],
+                                            callback_data="action&" + parent.get(
+                                                'id') + "&" + self.get_state_string(new_state) + "&" + child.get('id') + prevent_edit)
+
+            else:
+                return InlineKeyboardButton(child.attrib['name'],
+                                            callback_data="go&" + child.get(
+                                                'id') + "&" + self.get_state_string(state))
+
         if elem.tag == "SwitchButton":
             text = get_text(elem)
             keyboard = []
@@ -104,13 +149,12 @@ class Menu:
             parent = self.root.find('.//*[@id="{}"]...'.format(state['opened_menu']))
 
             for child in parent:
-                keyboard.append([InlineKeyboardButton(child.attrib['name'],
-                                                      callback_data="switch&&&" + child.get(
-                                                          'id') + "&&&" + self.get_state_string(state))])
+                keyboard.append([get_button(child, parent, state)])
 
             if parent.get('update_button') is not None:
                 keyboard.append([InlineKeyboardButton("🔄 Обновить",
-                                                      callback_data="switch&&&" + state['opened_menu'] + "&&&" + self.get_state_string(state))])
+                                                      callback_data="switch&" + state[
+                                                          'opened_menu'] + "&" + self.get_state_string(state))])
 
             send_message(text, keyboard)
 
@@ -119,27 +163,38 @@ class Menu:
             keyboard = []
 
             for child in elem:
-                keyboard.append([InlineKeyboardButton(child.attrib['name'],
-                                                      callback_data="go&&&" + child.get(
-                                                          'id') + "&&&" + self.get_state_string(state))])
+                if child.tag == 'Row':
+                    keyboard.append(
+                        [get_button(row_child, elem, state) for row_child in child]
+                    )
+
+                    if None in keyboard[len(keyboard) - 1]:
+                        keyboard[len(keyboard) - 1].remove(None)
+                elif child.tag == "CustomButtons":
+                    buttons = getattr(self, child.get('init'))(state.copy(), update)
+
+                    for row in buttons:
+                        keyboard.append([get_button(None, elem, state, row_child) for row_child in row])
+                else:
+                    keyboard.append([get_button(child, elem, state)])
 
             if elem.get('update_button') is not None:
                 keyboard.append([InlineKeyboardButton("🔄 Обновить",
-                                                      callback_data="go&&&" + elem.get(
-                                                          'id') + "&&&" + self.get_state_string(state))])
+                                                      callback_data="go&" + elem.get(
+                                                          'id') + "&" + self.get_state_string(state))])
 
             if id != '0':
                 keyboard.append([InlineKeyboardButton("◀️ Назад",
-                                                      callback_data="go&&&" + self.root.find(
+                                                      callback_data="go&" + self.root.find(
                                                           './/*[@id="{}"]...'.format(id)).get(
-                                                          'id') + "&&&" + self.get_state_string(state))])
+                                                          'id') + "&" + self.get_state_string(state))])
 
             send_message(text, keyboard)
         elif elem.tag == "PlotButton":
             keyboard = [
                 [
-                    InlineKeyboardButton("◀️ Назад", callback_data="back_resend&&&" + self.root.find(
-                        './/*[@id="{}"]...'.format(id)).get('id') + "&&&" +
+                    InlineKeyboardButton("◀️ Назад", callback_data="back_resend&" + self.root.find(
+                        './/*[@id="{}"]...'.format(id)).get('id') + "&" +
                                                                    self.get_state_string(state))
                 ]
             ]
@@ -160,13 +215,25 @@ class Menu:
         query = update.callback_query
 
         if query.data.startswith('go'):
-            info = query.data.split('&&&')
+            info = query.data.split('&')
             self.open_menu(info[1], self.get_state_from_string(info[2]), update, context)
         elif query.data.startswith('back_resend'):
-            info = query.data.split('&&&')
+            info = query.data.split('&')
             self.open_menu(info[1], self.get_state_from_string(info[2]), update, context, resend=True)
         elif query.data.startswith("switch"):
-            info = query.data.split('&&&')
+            info = query.data.split('&')
             state = self.get_state_from_string(info[2])
             state['opened_menu'] = info[1]
             self.open_menu(info[1], state, update, context)
+        elif query.data.startswith("action"):
+            info = query.data.split('&')
+
+            state = self.get_state_from_string(info[2])
+
+            allow_open = True
+
+            if len(info) >= 4:
+                allow_open = self.action_callback(info[3], state, update, context)
+
+            if len(info) != 5 and allow_open:
+                self.open_menu(info[1], state, update, context)

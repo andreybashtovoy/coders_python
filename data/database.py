@@ -162,5 +162,20 @@ class DataBase:
                     "activity_names WHERE " +
                     "name='" + name + "'));")
 
+    @with_connection
+    def get_activity_by_name(self, name, cur):
+        cur.execute("SELECT * FROM activity_names WHERE name='%s'" % name)
+        return cur.fetchone()
+
+    @with_connection
+    def get_activity_by_id(self, id, cur):
+        cur.execute("SELECT * FROM activity_names WHERE id=%d" % id)
+        return cur.fetchone()
+
+    @with_connection
+    def add_activity(self, user_id, activity_id, duration, cur):
+        cur.execute("INSERT INTO activities(user_id, activity_id, duration) VALUES(" + str(user_id) + ","
+                    + str(activity_id) + "," + str(duration) + " );")
+
 
 DB = DataBase()

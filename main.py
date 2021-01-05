@@ -4,6 +4,7 @@ import warnings
 import json
 from components.user_stats import UserStats
 from components.rating import Rating
+from components.add_time import AddTime
 from commands import CommandHandlers
 from commands.activities import Activities
 
@@ -18,7 +19,7 @@ if __name__ == "__main__":
     updater.bot.send_message(-1001243947001, "О связь есть")
 
     Activities(updater)
-    menus = [UserStats(updater), Rating(updater)]
+    menus = [UserStats(updater), Rating(updater), AddTime(updater)]
 
     def button_click_handler(update: Update, context: CallbackContext):
         for menu in menus:
