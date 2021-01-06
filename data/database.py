@@ -177,5 +177,15 @@ class DataBase:
         cur.execute("INSERT INTO activities(user_id, activity_id, duration) VALUES(" + str(user_id) + ","
                     + str(activity_id) + "," + str(duration) + " );")
 
+    @with_connection
+    def get_active_users(self, cur):
+        cur.execute("SELECT active.start_time, u.user_id, u.username, act.id, act.name FROM "
+                    "(SELECT * FROM activities WHERE duration = 0) active "
+                    "JOIN users u ON active.user_id = u.user_id "
+                    "JOIN activity_names act ON active.activity_id = act.id "
+                    "WHERE active.activity_id NOT IN(0, 9)")
+
+        return cur.fetchall()
+
 
 DB = DataBase()

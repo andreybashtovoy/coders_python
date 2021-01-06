@@ -7,6 +7,7 @@ from components.rating import Rating
 from components.add_time import AddTime
 from commands import CommandHandlers
 from commands.activities import Activities
+from scheduler import Scheduler
 
 warnings.filterwarnings('ignore')
 
@@ -18,7 +19,9 @@ if __name__ == "__main__":
 
     updater.bot.send_message(-1001243947001, "О связь есть")
 
+    Scheduler(updater)
     Activities(updater)
+
     menus = [UserStats(updater), Rating(updater), AddTime(updater)]
 
     def button_click_handler(update: Update, context: CallbackContext):
