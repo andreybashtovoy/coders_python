@@ -47,7 +47,7 @@ class Scheduler:
                                                             self.get_string_by_duration(duration))
 
             self.updater.bot.send_message(
-                chat_id=858295159,
+                chat_id=-1001156172516,
                 text=string,
                 parse_mode="MarkdownV2"
             )
