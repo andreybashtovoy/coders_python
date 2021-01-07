@@ -146,4 +146,4 @@ class AddTime(Menu):
             parse_mode="Markdown"
         )
 
-        return True
+        return False

@@ -43,7 +43,12 @@ class Scheduler:
                 data_start = datetime.datetime.strptime(user['start_time'], '%Y-%m-%d %H:%M:%S')
                 duration = (data_now - data_start).seconds / 3600
 
-                string += "🔸@{} \- *{}* \(_{}_\)\n".format(user['username'].replace("_", "\_"), user['name'],
+                if user['username'] != "":
+                    username = ("@" + user['username'].replace("_", "\_"))
+                else:
+                    username = "[{}](tg://user?id={})".format(user['id'], user['id'])
+
+                string += "🔸{} \- *{}* \(_{}_\)\n".format(username, user['name'],
                                                             self.get_string_by_duration(duration))
 
             self.updater.bot.send_message(

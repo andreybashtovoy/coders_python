@@ -63,6 +63,8 @@ class Menu:
     def action_callback(self, elem_id, state, update: Update, context: CallbackContext) -> bool:
         if elem_id == "c":
             return getattr(self, "check")(update, state)
+        elif elem_id == "custom":
+            return getattr(self, "action_custom_callback")(update, state)
 
         elem = self.root.find('.//*[@id="{}"]'.format(elem_id))
         if elem.get('callback') is not None:
@@ -109,10 +111,19 @@ class Menu:
 
         def get_button(child, parent, state, row_child=None):
             if child is None:
-                new_state = getattr(self, row_child['action'])(state.copy(), update, row_child['name'])
+                if 'action' in row_child:
+                    new_state = getattr(self, row_child['action'])(state.copy(), update, row_child['name'])
+                else:
+                    new_state = state
+
+                if 'callback' in row_child and row_child['callback']:
+                    callback = 'custom'
+                else:
+                    callback = 'c'
+
                 return InlineKeyboardButton(row_child['name'],
                                             callback_data="action&" + parent.get(
-                                                'id') + "&" + self.get_state_string(new_state) + '&c')
+                                                'id') + "&" + self.get_state_string(new_state) + '&' + callback)
             elif child.tag == "SwitchButton":
                 return InlineKeyboardButton(child.attrib['name'],
                                             callback_data="switch&" + child.get(

@@ -5,6 +5,7 @@ import json
 from components.user_stats import UserStats
 from components.rating import Rating
 from components.add_time import AddTime
+from components.start_activity import StartActivity
 from commands import CommandHandlers
 from commands.activities import Activities
 from scheduler import Scheduler
@@ -22,7 +23,7 @@ if __name__ == "__main__":
     Scheduler(updater)
     Activities(updater)
 
-    menus = [UserStats(updater), Rating(updater), AddTime(updater)]
+    menus = [UserStats(updater), Rating(updater), AddTime(updater), StartActivity(updater)]
 
     def button_click_handler(update: Update, context: CallbackContext):
         for menu in menus:

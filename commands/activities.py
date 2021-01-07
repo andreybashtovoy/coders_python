@@ -9,7 +9,7 @@ class Activities:
     def __init__(self, updater: Updater):
         updater.dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, self.on_message))
         updater.dispatcher.add_handler(CommandHandler('keyboard', self.send_keyboard_to_all))
-        updater.dispatcher.add_handler(CommandHandler('p', self.penalty))
+        updater.dispatcher.add_handler(CommandHandler('stop', self.stop))
 
     def get_keyboard_list_by_names(self, names):
         keyboard = list()
@@ -31,6 +31,8 @@ class Activities:
         return keyboard
 
     def send_keyboard_to_all(self, update: Update, context: CallbackContext):
+        return 1
+
         activity_names = DB.get_all_activity_names()
 
         names = []
@@ -70,6 +72,8 @@ class Activities:
         return "{} часов {} минут {} секунд".format(hours, minutes, seconds)
 
     def on_message(self, update: Update, context: CallbackContext):
+        return 1
+
         activity_names = DB.get_all_activity_names()
 
         name = update.message.text
@@ -82,14 +86,18 @@ class Activities:
         if name in names:
             self.start_activity(update.message.from_user.id, name, update, context)
 
-    def penalty(self, update: Update, context: CallbackContext):
+    def stop(self, update: Update, context: CallbackContext):
         msg = update.message.text.split()
 
-        if len(msg) > 1 and msg[1].isnumeric() and 0 < int(msg[1]) < 1000:
-            self.start_activity(update.message.from_user.id, "Ничего", update, context, penalty=int(msg[1]))
+        if len(msg) > 1:
+            if len(msg) > 1 and msg[1].isnumeric() and 0 < int(msg[1]) < 1000:
+                self.start_activity(update.message.from_user.id, "Ничего", update, context, penalty=int(msg[1]))
+            else:
+                update.message.reply_text(
+                    "Штраф должен быть в промежутке от 0 до 1000 минут.",
+                    parse_mode="Markdown")
         else:
-            update.message.reply_text("Введи _/p *время в минутах*_, чтобы завершить текущее занятие со штрафом.",
-                                      parse_mode="Markdown")
+            self.start_activity(update.message.from_user.id, "Ничего", update, context)
 
     def start_activity(self, user_id, name, update: Update, context: CallbackContext, penalty=0):
         active_activity = DB.get_active_activity(user_id)
