@@ -17,20 +17,23 @@ class AddTime(Menu):
             "u_id": update.message.from_user.id,
             "a": "0",
             "p": "1",
-            "dur": "0.5"
+            "dur": "30"
         }
 
     def get_string_by_duration(self, duration):
-        hours = floor(duration) if duration > 0 else ceil(duration)
-        minutes = floor((abs(duration) % 1) * 60)
-        if hours == 0 and duration < 0:
-            minutes = -minutes
-        seconds = floor((((abs(duration) % 1) * 60) % 1) * 60)
+        hours = abs(duration)//60
+        minutes = abs(duration) % 60
 
-        return "{} часов {} минут {} секунд".format(hours, minutes, seconds)
+        if duration < 0:
+            if hours == 0:
+                minutes = -minutes
+            else:
+                hours = -hours
+
+        return "{} часов {} минут".format(hours, minutes)
 
     def text_format(self, message_text, update: Update, state):
-        duration = float(state['dur'])
+        duration = int(state['dur'])
 
         name = "Не выбрано"
 
@@ -85,7 +88,7 @@ class AddTime(Menu):
         return state
 
     def add_time(self, minutes, state, update: Update):
-        state["dur"] = round(float(state["dur"]) + minutes / 60, 5)
+        state["dur"] = int(state["dur"]) + minutes
 
         return state
 
@@ -136,11 +139,15 @@ class AddTime(Menu):
             update.callback_query.answer(text="Ты не выбрал занятие.", show_alert=True)
             return False
 
-        DB.add_activity(state['u_id'], state['a'], state['dur'])
+        if int(state['dur']) == 0:
+            update.callback_query.answer(text="Продолжительность не должна быть равна нулю.", show_alert=True)
+            return False
+
+        DB.add_activity(state['u_id'], state['a'], int(state['dur'])/60)
 
         update.callback_query.edit_message_text(
             text="✅ Ты добавил _{}_ к занятию *{}*.".format(
-                self.get_string_by_duration(float(state['dur'])),
+                self.get_string_by_duration(int(state['dur'])),
                 DB.get_activity_by_id(int(state['a']))['name']
             ),
             parse_mode="Markdown"
