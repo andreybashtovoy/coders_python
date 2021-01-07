@@ -21,7 +21,6 @@ if __name__ == "__main__":
     updater.bot.send_message(-1001243947001, "О связь есть")
 
     Scheduler(updater)
-    Activities(updater)
 
     menus = [UserStats(updater), Rating(updater), AddTime(updater), StartActivity(updater)]
 

@@ -1,6 +1,6 @@
 from components.menu import Menu
 from telegram import Update
-from telegram.ext import Updater
+from telegram.ext import Updater, CommandHandler, CallbackContext
 from data.database import DB
 import datetime
 from math import ceil, floor
@@ -11,6 +11,7 @@ class StartActivity(Menu):
 
     def __init__(self, updater: Updater):
         super().__init__(updater, 'components/start_activity/start_activity.xml', 'start')
+        updater.dispatcher.add_handler(CommandHandler('stop', self.stop))
 
     def initial_state(self, update: Update):
         return {
@@ -89,7 +90,20 @@ class StartActivity(Menu):
 
         return "{} часов {} минут {} секунд".format(hours, minutes, seconds)
 
-    def start_activity(self, user_id, name, update: Update):
+    def stop(self, update: Update, context: CallbackContext):
+        msg = update.message.text.split()
+
+        if len(msg) > 1:
+            if len(msg) > 1 and msg[1].isnumeric() and 0 < int(msg[1]) < 1000:
+                self.start_activity(update.message.from_user.id, "Ничего", update, penalty=int(msg[1]), edit=False)
+            else:
+                update.message.reply_text(
+                    "Штраф должен быть в промежутке от 0 до 1000 минут.",
+                    parse_mode="Markdown")
+        else:
+            self.start_activity(update.message.from_user.id, "Ничего", update, edit=False)
+
+    def start_activity(self, user_id, name, update: Update, penalty=0, edit=True):
         active_activity = DB.get_active_activity(user_id)
 
         stopped_activity = None
@@ -99,7 +113,7 @@ class StartActivity(Menu):
         if active_activity is not None:
             data_now = datetime.datetime.now()
             data_start = datetime.datetime.strptime(active_activity['start_time'], '%Y-%m-%d %H:%M:%S')
-            duration = (data_now - data_start).seconds / 3600
+            duration = (data_now - data_start).seconds / 3600 - penalty/60
 
             stopped_activity = active_activity
             stopped_activity['duration'] = duration
@@ -107,7 +121,12 @@ class StartActivity(Menu):
         DB.start_activity(user_id, name, duration)
 
         if stopped_activity is not None and stopped_activity['activity_id'] != 0:
-            update.callback_query.message.reply_to_message.reply_text(
+            if edit:
+                func = update.callback_query.message.reply_to_message.reply_text
+            else:
+                func = update.message.reply_text
+
+            func(
                 text="✅ Занятие завершено ({})\n\n⏱ Продолжительность: {}.".format(
                     stopped_activity['name'],
                     self.get_string_by_duration(stopped_activity['duration'])

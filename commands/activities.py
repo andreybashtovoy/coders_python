@@ -1,3 +1,5 @@
+# Useless fucking piece of shit
+
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup
 from telegram.ext import CommandHandler, CallbackContext, CallbackQueryHandler, Updater, MessageHandler, Filters
 from data.database import DB
