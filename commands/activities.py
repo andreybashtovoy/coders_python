@@ -122,8 +122,7 @@ class Activities:
                     stopped_activity['name'],
                     self.get_string_by_duration(stopped_activity['duration'])
                 ),
-                parse_mode="Markdown",
-                reply_markup=self.get_user_keyboard(update.message.from_user.id)
+                parse_mode="Markdown"
             )
 
         if name != "Ничего":
