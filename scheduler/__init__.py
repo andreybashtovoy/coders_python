@@ -139,7 +139,7 @@ class Scheduler:
         emoji = ['🔹', '🔸']
 
         for name in durations:
-            string += "%s%s \- _%s_ \(*%d\-й* день подряд, звание *%s*\)\n" % (emoji[i % 2],
+            string += "%s%s \- _%s_ \(*%d* дней подряд, звание *%s*\)\n" % (emoji[i % 2],
                                                                             name,
                                                                            self.get_string_by_duration(durations[name]),
                                                                            days[name],

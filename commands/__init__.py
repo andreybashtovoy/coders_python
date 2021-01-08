@@ -52,7 +52,7 @@ class CommandHandlers:
             username = user['username'].replace("_","\_")
             username = username.replace(".", "\.")
 
-            string += "%s `%s` \- *%s* \(%d\-й день подряд\)\n" % (emoji[i % 2],
+            string += "%s `%s` \- *%s* \(%d дней подряд\)\n" % (emoji[i % 2],
                                                                   username,
                                                                   rank,
                                                                   user['day'])
