@@ -14,6 +14,8 @@ class Scheduler:
         schedule.every().hour.at(":00").do(self.tag_active)
         schedule.every().day.at("23:55").do(self.tag_all)
 
+        #updater.dispatcher.add_handler(CommandHandler('test', self.tag_active))
+
         x = threading.Thread(target=self.pending, args=(1,))
         x.start()
 
@@ -40,6 +42,8 @@ class Scheduler:
                                                                          endings[len(active_users) % 10])
             data_now = datetime.datetime.now()
 
+            all_ranks = DB.get_all_ranks()
+
             for user in active_users:
                 data_start = datetime.datetime.strptime(user['start_time'], '%Y-%m-%d %H:%M:%S')
                 duration = (data_now - data_start).seconds / 3600
@@ -49,7 +53,15 @@ class Scheduler:
                 else:
                     username = "[{}](tg://user?id={})".format(user['user_id'], user['user_id'])
 
-                string += "🔸{} \- *{}* \(_{}_\)\n".format(username, user['name'],
+                rank = all_ranks[0]['name']
+
+                for obj in all_ranks:
+                    if obj['min_days'] <= user['day']:
+                        rank = obj['name']
+                    else:
+                        break
+
+                string += "🔸{} \[`{}`\] \- *{}* \(_{}_\)\n".format(username, rank, user['name'],
                                                            self.get_string_by_duration(duration))
 
             self.updater.bot.send_message(
@@ -125,7 +137,7 @@ class Scheduler:
             i+=1
 
         self.updater.bot.send_message(
-            chat_id=-1001243947001,
+            chat_id=-1001156172516,
             text=string,
             parse_mode="MarkdownV2"
         )
