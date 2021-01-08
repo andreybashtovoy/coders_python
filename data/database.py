@@ -35,7 +35,7 @@ class DataBase:
 
         time_user = fcho['time']
 
-        if fcho['time'] is not None and fcho['duration'] is not None:
+        if fcho['time'] is not None and fcho['start_time'] is not None:
 
             data_now = datetime.datetime.now()
 
@@ -43,7 +43,6 @@ class DataBase:
 
             diff = (data_now - data_start).seconds / 3600
             time_user = time_user + diff
-
 
         elif fcho['time'] is None:
             return " 0 часов 0 минут 0 секунд"
@@ -69,29 +68,37 @@ class DataBase:
         cur.execute("SELECT * FROM activity_names")
         return cur.fetchall()
 
-    @with_connection
-    def get_user_useful_time(self, user_id, period, cur):
+    def _get_user_useful_time(self, user_id, period, cur):
 
         if period == 'week':
-            period_sql = "AND a.start_time > DATE('now', 'localtime', 'weekday 1', '-7 days');"
+            period_sql = "AND a.start_time > DATE('now', 'localtime', 'weekday 1', '-7 days')"
         elif period == 'month':
-            period_sql = "AND a.start_time > DATE('now', 'localtime', 'start of month');"
+            period_sql = "AND a.start_time > DATE('now', 'localtime', 'start of month')"
         elif period == 'today':
-            period_sql = "AND a.start_time > DATE('now', 'localtime');"
+            period_sql = "AND a.start_time > DATE('now', 'localtime')"
         else:
-            period_sql = ";"
+            period_sql = ""
 
         cur.execute(
-            "SELECT SUM(a.duration) AS time, ac.duration, ac.start_time FROM (SELECT * FROM activities WHERE user_id=" + str(
-                user_id) + ") a " +
-            "INNER JOIN activity_names an ON a.activity_id=an.id LEFT JOIN (SELECT * FROM activities WHERE duration=0) ac ON ac.user_id=a.user_id " +
-            "AND an.id = ac.activity_id WHERE an.challenge=1 " + period_sql)
+            "SELECT s.time, active.start_time FROM "
+            "("
+            "SELECT SUM(a.duration) as time, a.user_id FROM activities a "
+            "JOIN activity_names an ON a.activity_id = an.id "
+            "WHERE a.user_id=%d AND an.challenge=1 %s "
+            ") s "
+            "LEFT JOIN (SELECT * FROM activities a JOIN "
+            "activity_names n on a.activity_id = n.id WHERE a.duration=0 AND n.challenge=1) active "
+            "ON s.user_id=active.user_id" % (user_id, period_sql))
 
-        fcho = cur.fetchone()
+        return cur.fetchone()
 
-        time = self.__hours_to_str(fcho)
+    @with_connection
+    def get_user_useful_time(self, user_id, period, cur):
+        return self.__hours_to_str(self._get_user_useful_time(user_id, period, cur))
 
-        return time
+    @with_connection
+    def get_today_user_useful_time(self, user_id, cur):
+        return self._get_user_useful_time(user_id, "today", cur)
 
     @with_connection
     def get_active_task_user(self, user_id, cur):
@@ -157,7 +164,8 @@ class DataBase:
 
     @with_connection
     def start_activity(self, user_id, name, duration, cur):
-        cur.execute("UPDATE activities SET duration=" + str(duration) + " WHERE duration=0 AND user_id=" + str(user_id) + ";")
+        cur.execute(
+            "UPDATE activities SET duration=" + str(duration) + " WHERE duration=0 AND user_id=" + str(user_id) + ";")
         cur.execute("INSERT INTO activities(user_id, activity_id) VALUES(" + str(user_id) + ", (SELECT id FROM " +
                     "activity_names WHERE " +
                     "name='" + name + "'));")
@@ -186,6 +194,20 @@ class DataBase:
                     "WHERE active.activity_id NOT IN(0, 9)")
 
         return cur.fetchall()
+
+    @with_connection
+    def get_all_users(self, cur):
+        cur.execute("SELECT * FROM users")
+        return cur.fetchall()
+
+    @with_connection
+    def get_all_ranks(self, cur):
+        cur.execute("SELECT * FROM rank")
+        return cur.fetchall()
+
+    @with_connection
+    def set_user_day(self, user_id, day, cur):
+        cur.execute("UPDATE users SET day=%d WHERE user_id=%d" % (day, user_id))
 
 
 DB = DataBase()

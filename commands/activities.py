@@ -13,6 +13,7 @@ class Activities:
         updater.dispatcher.add_handler(CommandHandler('keyboard', self.send_keyboard_to_all))
         updater.dispatcher.add_handler(CommandHandler('stop', self.stop))
 
+
     def get_keyboard_list_by_names(self, names):
         keyboard = list()
         i = 0
