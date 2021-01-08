@@ -197,7 +197,7 @@ class DataBase:
 
     @with_connection
     def get_all_users(self, cur):
-        cur.execute("SELECT * FROM users")
+        cur.execute("SELECT * FROM users ORDER BY day DESC")
         return cur.fetchall()
 
     @with_connection
