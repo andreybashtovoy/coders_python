@@ -12,6 +12,7 @@ class CommandHandlers:
         updater.dispatcher.add_handler(CommandHandler('disable_tag', self.disable_tag))
         updater.dispatcher.add_handler(CommandHandler('enable_tag', self.enable_tag))
         updater.dispatcher.add_handler(CommandHandler('ranks', self.ranks))
+        updater.dispatcher.add_handler(CommandHandler('status', self.status))
 
     def restart(self, update: Update, context):
         update.message.reply_text("До связи")
@@ -60,4 +61,14 @@ class CommandHandlers:
         update.message.reply_text(
             text=string,
             parse_mode="MarkdownV2"
+        )
+
+    def status(self, update: Update, context: CallbackContext):
+        activity = DB.get_active_task_user(update.message.from_user.id)
+
+        task_icon = "🟢" if activity['active'] else "🔴"
+
+        update.message.reply_text(
+            text="%s *%s* (_%s_)" % (task_icon, activity['name'], activity['time']),
+            parse_mode="Markdown"
         )

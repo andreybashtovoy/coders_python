@@ -52,6 +52,7 @@ class Scheduler:
 
                     if user['tag']:
                         username = ("@" + user['username'].replace("_", "\_"))
+                        username = username.replace(".", "\.")
                     else:
                         username = ("`" + user['username'].replace("_", "\_") + "`")
                 else:
@@ -106,6 +107,7 @@ class Scheduler:
 
             if user['username'] != "":
                 username = ("@" + user['username'].replace("_", "\_"))
+                username = username.replace(".", "\.")
             else:
                 username = "[{}](tg://user?id={})".format(user['user_id'], user['user_id'])
 
