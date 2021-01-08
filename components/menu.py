@@ -187,7 +187,10 @@ class Menu:
                     for row in buttons:
                         keyboard.append([get_button(None, elem, state, row_child) for row_child in row])
                 else:
-                    keyboard.append([get_button(child, elem, state)])
+                    button = get_button(child, elem, state)
+
+                    if button is not None:
+                        keyboard.append([button])
 
             if elem.get('update_button') is not None:
                 keyboard.append([InlineKeyboardButton("🔄 Обновить",

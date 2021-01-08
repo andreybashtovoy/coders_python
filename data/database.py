@@ -187,7 +187,7 @@ class DataBase:
 
     @with_connection
     def get_active_users(self, cur):
-        cur.execute("SELECT active.start_time, u.user_id, u.username, u.day, act.id, act.name FROM "
+        cur.execute("SELECT active.start_time, u.user_id, u.username, u.day, u.tag, act.id, act.name FROM "
                     "(SELECT * FROM activities WHERE duration = 0) active "
                     "JOIN users u ON active.user_id = u.user_id "
                     "JOIN activity_names act ON active.activity_id = act.id "
@@ -209,5 +209,12 @@ class DataBase:
     def set_user_day(self, user_id, day, cur):
         cur.execute("UPDATE users SET day=%d WHERE user_id=%d" % (day, user_id))
 
+    @with_connection
+    def disable_tag(self, user_id, cur):
+        cur.execute("UPDATE users SET tag=0 WHERE user_id=" + str(user_id))
+
+    @with_connection
+    def enable_tag(self, user_id, cur):
+        cur.execute("UPDATE users SET tag=1 WHERE user_id=" + str(user_id))
 
 DB = DataBase()
