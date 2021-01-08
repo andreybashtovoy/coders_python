@@ -3,6 +3,7 @@ from telegram.ext import CallbackContext, Updater, CommandHandler
 from data.database import DB
 import os
 
+
 class CommandHandlers:
     def __init__(self, updater: Updater):
         self.__updater = updater
@@ -10,7 +11,6 @@ class CommandHandlers:
         updater.dispatcher.add_handler(CommandHandler('get_chat_id', self.get_chat_id))
         updater.dispatcher.add_handler(CommandHandler('disable_tag', self.disable_tag))
         updater.dispatcher.add_handler(CommandHandler('enable_tag', self.enable_tag))
-
 
     def restart(self, update: Update, context):
         update.message.reply_text("До связи")

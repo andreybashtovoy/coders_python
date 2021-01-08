@@ -14,7 +14,7 @@ class Scheduler:
         schedule.every().hour.at(":00").do(self.tag_active)
         schedule.every().day.at("23:55").do(self.tag_all)
 
-        updater.dispatcher.add_handler(CommandHandler('test', self.tag_active))
+        #updater.dispatcher.add_handler(CommandHandler('test', self.tag_active))
 
         x = threading.Thread(target=self.pending, args=(1,))
         x.start()
@@ -74,8 +74,8 @@ class Scheduler:
             string += "\n`Не тегать меня - ` /disable\_tag"
 
             self.updater.bot.send_message(
-                #chat_id=-1001156172516,
-                chat_id=-1001243947001,
+                chat_id=-1001156172516,
+                #chat_id=-1001243947001,
                 text=string,
                 parse_mode="MarkdownV2"
             )
