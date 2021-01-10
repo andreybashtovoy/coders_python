@@ -8,7 +8,7 @@ from data.ds import Data
 
 
 class Menu:
-    def __init__(self, updater: Updater, file_url, command):
+    def __init__(self, updater: Updater, file_url, command=None):
         tree = ET.parse(file_url)
         self.root = tree.getroot()
         self.command = command
@@ -16,7 +16,8 @@ class Menu:
         self.index = 0
         self.index_elements(self.root)
 
-        updater.dispatcher.add_handler(CommandHandler(command, self.send))
+        if command is not None:
+            updater.dispatcher.add_handler(CommandHandler(command, self.send))
 
     def index_elements(self, elem):
         elem.set("id", str(self.index))
@@ -72,7 +73,7 @@ class Menu:
 
         return True
 
-    def open_menu(self, id, state, update: Update, context: CallbackContext, resend=False, send=False):
+    def open_menu(self, id, state, update: Update, context=None, resend=False, send=False):
         elem = self.root.find('.//*[@id="{}"]'.format(id)) if id != '0' else self.root
 
         def get_text(e):
@@ -141,8 +142,8 @@ class Menu:
 
                 prevent_edit = ""
 
-                if state == new_state:
-                    prevent_edit = "&1"
+                #if state == new_state:
+                #    prevent_edit = "&1"
 
                 return InlineKeyboardButton(child.attrib['name'],
                                             callback_data="action&" + parent.get(
@@ -179,8 +180,14 @@ class Menu:
                         [get_button(row_child, elem, state) for row_child in child]
                     )
 
-                    if None in keyboard[len(keyboard) - 1]:
-                        keyboard[len(keyboard) - 1].remove(None)
+                    def remove_all_occurrences(list_obj, value):
+                        while value in list_obj:
+                            list_obj.remove(value)
+
+                    remove_all_occurrences(keyboard[len(keyboard) - 1], None)
+
+                    if [] in keyboard:
+                        keyboard.remove([])
                 elif child.tag == "CustomButtons":
                     buttons = getattr(self, child.get('init'))(state.copy(), update)
 

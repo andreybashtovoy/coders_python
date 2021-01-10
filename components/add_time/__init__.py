@@ -120,7 +120,9 @@ class AddTime(Menu):
     def is_next_hidden(self, state, update: Update):
         length = len(DB.get_all_activity_names())
 
-        if length // self.IN_PAGE <= int(state['p']):
+        page_count = ceil(length / self.IN_PAGE)
+
+        if page_count <= int(state['p']):
             return True
         return False
 

@@ -6,6 +6,9 @@ from components.user_stats import UserStats
 from components.rating import Rating
 from components.add_time import AddTime
 from components.start_activity import StartActivity
+from components.projects import ProjectsSelectingActivity
+from components.projects.projects import ProjectsOfActivity
+from components.projects.separate_project import SeparateProject
 from commands import CommandHandlers
 from commands.activities import Activities
 from scheduler import Scheduler
@@ -22,9 +25,27 @@ if __name__ == "__main__":
 
     Scheduler(updater)
 
-    menus = [UserStats(updater), Rating(updater), AddTime(updater), StartActivity(updater)]
+    projects = []
+
+    separate_project = SeparateProject(updater, projects)
+    projects.append(separate_project)
+    projects_of_activity = ProjectsOfActivity(updater, projects)
+    projects.append(projects_of_activity)
+    selecting_activity = ProjectsSelectingActivity(updater, projects)
+    projects.append(selecting_activity)
+
+    menus = [UserStats(updater), Rating(updater), AddTime(updater), StartActivity(updater), selecting_activity
+             ]
 
     def button_click_handler(update: Update, context: CallbackContext):
+        if "📁 Проект:" in update.callback_query.message.text:
+            separate_project.on_button_click(update, context)
+            return
+
+        if "📂" in update.callback_query.message.text:
+            projects_of_activity.on_button_click(update, context)
+            return
+
         for menu in menus:
             if update.callback_query.message.reply_to_message.text.startswith("/" + menu.command):
                 menu.on_button_click(update, context)

@@ -163,12 +163,12 @@ class DataBase:
         return cur.fetchone()
 
     @with_connection
-    def start_activity(self, user_id, name, duration, cur):
+    def start_activity(self, user_id, name, duration, project_id, cur):
         cur.execute(
             "UPDATE activities SET duration=" + str(duration) + " WHERE duration=0 AND user_id=" + str(user_id) + ";")
-        cur.execute("INSERT INTO activities(user_id, activity_id) VALUES(" + str(user_id) + ", (SELECT id FROM " +
+        cur.execute("INSERT INTO activities(user_id, activity_id, project_id) VALUES(" + str(user_id) + ", (SELECT id FROM " +
                     "activity_names WHERE " +
-                    "name='" + name + "'));")
+                    "name='" + name + "'), " + (str(project_id) if project_id is not None else "NULL") + ");")
 
     @with_connection
     def get_activity_by_name(self, name, cur):
@@ -177,7 +177,7 @@ class DataBase:
 
     @with_connection
     def get_activity_by_id(self, id, cur):
-        cur.execute("SELECT * FROM activity_names WHERE id=%d" % id)
+        cur.execute("SELECT * FROM activity_names WHERE id=%d" % int(id))
         return cur.fetchone()
 
     @with_connection
@@ -216,5 +216,67 @@ class DataBase:
     @with_connection
     def enable_tag(self, user_id, cur):
         cur.execute("UPDATE users SET tag=1 WHERE user_id=" + str(user_id))
+
+    @with_connection
+    def get_user_projects_by_activity_id(self, user_id, activity_id, cur):
+        cur.execute("SELECT * FROM projects WHERE user_id=%s AND activity_id=%s "
+                    "ORDER BY id DESC" % (user_id, activity_id))
+        return cur.fetchall()
+
+    @with_connection
+    def get_project_by_name(self, user_id, name, cur):
+        cur.execute("SELECT * FROM projects WHERE user_id=%s AND name='%s'" % (user_id, name))
+        return cur.fetchone()
+
+    @with_connection
+    def set_user_dialog_state(self, user_id, state, cur):
+        cur.execute("UPDATE users SET dialog_state='%s', dialog_start_time=DATETIME('now', 'localtime') "
+                    "WHERE user_id=%s" % (state, user_id))
+
+    @with_connection
+    def get_user_dialog_state(self, user_id, cur):
+        cur.execute("SELECT * FROM users WHERE user_id=%d AND "
+                    "dialog_start_time IS NOT NULL AND "
+                    "dialog_start_time>DATETIME('now', 'localtime', '-1 minute')" % user_id)
+        return cur.fetchone()
+
+    @with_connection
+    def create_project(self, user_id, activity_id, name, cur):
+        cur.execute("INSERT INTO projects(user_id, activity_id, name) "
+                    "VALUES (%s, %s, '%s')" % (user_id, activity_id, name))
+        cur.execute("SELECT * FROM projects WHERE id=(SELECT MAX(id) FROM projects)")
+        return cur.fetchone()
+
+    @with_connection
+    def get_project_by_id(self, id, cur):
+        cur.execute("SELECT * FROM projects WHERE id=%d" % int(id))
+        return cur.fetchone()
+
+    @with_connection
+    def get_project_time(self, project_id, cur):
+        cur.execute("SELECT IFNULL(SUM(duration), 0) AS duration FROM activities WHERE project_id=%s" % project_id)
+        return cur.fetchone()
+
+    @with_connection
+    def activate_project(self, project_id, user_id, activity_id, cur):
+        cur.execute("UPDATE projects SET active=0 WHERE user_id=%s AND activity_id=%s" % (user_id, activity_id))
+        cur.execute("UPDATE projects SET active=1 WHERE id=%s" % project_id)
+
+    @with_connection
+    def stop_project(self, project_id, cur):
+        cur.execute("UPDATE projects SET active=0 WHERE id=%s" % project_id)
+
+    @with_connection
+    def remove_project(self, project_id, cur):
+        cur.execute("DELETE FROM projects WHERE id=%s" % project_id)
+
+    @with_connection
+    def get_active_project(self, user_id, name, cur):
+        cur.execute(("SELECT * FROM projects WHERE user_id=%s AND active=1 AND activity_id=(SELECT id FROM " +
+                    "activity_names WHERE " +
+                    "name='%s')") %
+                    (user_id, name))
+        return cur.fetchone()
+
 
 DB = DataBase()

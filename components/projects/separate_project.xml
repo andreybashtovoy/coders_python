@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<MenuButton text='📁 *Проект*: _{project_name}_\n
+                  🧩 *Занятие*: _{activity_name}_\n
+                  ⏱ *Потрачено времени*: _{time}_\n\n
+                  {status}' format="main_menu_format">
+    <ActionButton name="▶️ Активировать" callback="activate_project" is_hidden="is_activate_hidden"/>
+    <ActionButton name="⏹️ Остановить" callback="stop_project" is_hidden="is_stop_hidden"/>
+    <ActionButton name="❌ Удалить" callback="remove"/>
+    <ActionButton name="⬅️ Назад" callback="back"/>
+</MenuButton>

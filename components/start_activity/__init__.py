@@ -74,7 +74,9 @@ class StartActivity(Menu):
     def is_next_hidden(self, state, update: Update):
         length = len(DB.get_all_activity_names())
 
-        if length // self.IN_PAGE <= int(state['page']):
+        page_count = ceil(length / self.IN_PAGE)
+
+        if page_count <= int(state['page']):
             return True
         return False
 
@@ -118,7 +120,12 @@ class StartActivity(Menu):
             stopped_activity = active_activity
             stopped_activity['duration'] = duration
 
-        DB.start_activity(user_id, name, duration)
+        project = DB.get_active_project(user_id, name)
+
+        if project is not None:
+            DB.start_activity(user_id, name, duration, project['id'])
+        else:
+            DB.start_activity(user_id, name, duration, None)
 
         if stopped_activity is not None and stopped_activity['activity_id'] != 0:
             if edit:
@@ -135,8 +142,15 @@ class StartActivity(Menu):
             )
 
         if name != "Ничего":
+            string = ""
+
+            if project is not None:
+                string = "\n📂 *Проект:* _%s_" % project['name']
+
             update.callback_query.message.edit_text(
-                text="🧾 Ты начал занятие \"{}\".".format(name))
+                text="🧾 Ты начал занятие \"{}\".{}".format(name, string),
+                parse_mode="Markdown"
+            )
 
     def action_custom_callback(self, update: Update, state):
         if update.callback_query is not None and update.callback_query.from_user.id != int(state['u_id']):
