@@ -12,7 +12,6 @@ class ProjectsOfActivity(Menu):
     def __init__(self, updater: Updater, projects):
         super().__init__(updater, 'components/projects/projects.xml')
         self.projects = projects
-        updater.dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, self.on_message))
 
     def main_menu_format(self, message_text, update: Update, state):
         activity = DB.get_activity_by_id(state['a'])

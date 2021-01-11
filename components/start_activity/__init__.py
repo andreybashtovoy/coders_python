@@ -10,8 +10,9 @@ class StartActivity(Menu):
     IN_PAGE = 4
 
     def __init__(self, updater: Updater):
-        super().__init__(updater, 'components/start_activity/start_activity.xml', 'start')
+        super().__init__(updater, 'components/start_activity/start_activity.xml')
         updater.dispatcher.add_handler(CommandHandler('stop', self.stop))
+        updater.dispatcher.add_handler(CommandHandler('start', self.start))
 
     def initial_state(self, update: Update):
         return {
@@ -19,6 +20,16 @@ class StartActivity(Menu):
             "page": "1",
             "a": "0"
         }
+
+    def start(self, update: Update, context: CallbackContext):
+        chat = DB.get_chat_by_id(update.effective_chat.id)
+
+        if chat is None:
+            update.message.reply_text("Привет! Этот бот позволит ن ‪يتكلّم ‬ ، فهو يتحدّث بلغة يونيكود. تسجّل الآن .")
+        else:
+            self.send(update, context)
+
+        DB.update_user_and_chat(update.message.from_user, update.effective_chat)
 
     def get_activity_buttons(self, state, update: Update):
 

@@ -1,4 +1,4 @@
-from telegram.ext import Updater, CallbackContext, CallbackQueryHandler
+from telegram.ext import Updater, CallbackContext, CallbackQueryHandler, MessageHandler, Filters
 from telegram import Update
 import warnings
 import json
@@ -34,8 +34,11 @@ if __name__ == "__main__":
     selecting_activity = ProjectsSelectingActivity(updater, projects)
     projects.append(selecting_activity)
 
-    menus = [UserStats(updater), Rating(updater), AddTime(updater), StartActivity(updater), selecting_activity
+    start_activity = StartActivity(updater)
+
+    menus = [UserStats(updater), Rating(updater), AddTime(updater), selecting_activity
              ]
+
 
     def button_click_handler(update: Update, context: CallbackContext):
         if "📁 Проект:" in update.callback_query.message.text:
@@ -46,12 +49,27 @@ if __name__ == "__main__":
             projects_of_activity.on_button_click(update, context)
             return
 
+        if update.callback_query.message.reply_to_message.text.startswith("/start"):
+            start_activity.on_button_click(update, context)
+            return
+
         for menu in menus:
             if update.callback_query.message.reply_to_message.text.startswith("/" + menu.command):
                 menu.on_button_click(update, context)
                 return
-            
+
+
     updater.dispatcher.add_handler(CallbackQueryHandler(button_click_handler))
+
+    has_message_handler = [projects[1]]
+
+
+    def message_handler(update: Update, context: CallbackContext):
+        for menu in has_message_handler:
+            menu.on_message(update, context)
+
+
+    updater.dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, message_handler))
 
     CommandHandlers(updater)
 

@@ -181,9 +181,9 @@ class DataBase:
         return cur.fetchone()
 
     @with_connection
-    def add_activity(self, user_id, activity_id, duration, cur):
-        cur.execute("INSERT INTO activities(user_id, activity_id, duration) VALUES(" + str(user_id) + ","
-                    + str(activity_id) + "," + str(duration) + " );")
+    def add_activity(self, user_id, activity_id, duration, project_id, cur):
+        cur.execute("INSERT INTO activities(user_id, activity_id, duration, project_id) VALUES(" + str(user_id) + ","
+                    + str(activity_id) + "," + str(duration) + ", " + (str(project_id) if project_id is not None else "NULL") + " );")
 
     @with_connection
     def get_active_users(self, cur):
@@ -277,6 +277,25 @@ class DataBase:
                     "name='%s')") %
                     (user_id, name))
         return cur.fetchone()
+
+    @with_connection
+    def get_chat_by_id(self, chat_id, cur):
+        cur.execute('SELECT * FROM chats WHERE chat_id=%s' % str(chat_id))
+        return cur.fetchone()
+
+    @with_connection
+    def update_user_and_chat(self, user, chat, cur):
+        obj = self.get_user_by_id(user.id)
+
+        if obj is None:
+            cur.execute("INSERT INTO users(user_id, username) VALUES(%d, '%s')" % (user.id, user.username))
+        else:
+            cur.execute("UPDATE users SET username='%s' WHERE user_id=%d" % (user.username, user.id))
+
+        cur.execute("REPLACE INTO chats(chat_id, name) VALUES (%d, '%s')" %
+                    (chat.id, chat.title if chat.title is not None else chat.username))
+
+        cur.execute("REPLACE INTO users_chats(chat_id, user_id) VALUES (%d, %d)" % (chat.id, user.id))
 
 
 DB = DataBase()

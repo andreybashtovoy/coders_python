@@ -145,12 +145,26 @@ class AddTime(Menu):
             update.callback_query.answer(text="Продолжительность не должна быть равна нулю.", show_alert=True)
             return False
 
-        DB.add_activity(state['u_id'], state['a'], int(state['dur'])/60)
+        activity = DB.get_activity_by_id(state['a'])
+
+        project = DB.get_active_project(state['u_id'], activity['name'])
+
+        if project is not None:
+            DB.add_activity(state['u_id'], state['a'], int(state['dur'])/60, project['id'])
+        else:
+            DB.add_activity(state['u_id'], state['a'], int(state['dur'])/60, None)
+
+        string = ""
+
+        if project is not None:
+            string = "\n📂 *Проект:* _%s_" % project['name']
+
 
         update.callback_query.edit_message_text(
-            text="✅ Ты добавил _{}_ к занятию *{}*.".format(
+            text="✅ Ты добавил _{}_ к занятию *{}*.\n{}".format(
                 self.get_string_by_duration(int(state['dur'])),
-                DB.get_activity_by_id(int(state['a']))['name']
+                DB.get_activity_by_id(int(state['a']))['name'],
+                string
             ),
             parse_mode="Markdown"
         )
