@@ -13,13 +13,6 @@ class StartActivity(Menu):
         super().__init__(updater, 'components/start_activity/start_activity.xml')
         updater.dispatcher.add_handler(CommandHandler('stop', self.stop))
         updater.dispatcher.add_handler(CommandHandler('start', self.start))
-        updater.dispatcher.add_handler(CommandHandler('qwerty', self.qwerty))
-
-    def qwerty(self, update: Update, context: CallbackContext):
-        update.message.reply_text(
-            text="Ладно",
-            reply_markup=ReplyKeyboardRemove()
-        )
 
     def initial_state(self, update: Update):
         return {
