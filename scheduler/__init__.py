@@ -65,10 +65,12 @@ class Scheduler:
                         else:
                             username = str(user['user_id'])
 
+                    hours = DB._get_user_useful_time(user['user_id'], 'all')['time']
+
                     rank = all_ranks[0]['name']
 
                     for obj in all_ranks:
-                        if obj['min_days'] <= user['day']:
+                        if obj['min_hours'] <= hours:
                             rank = obj['name']
                         else:
                             break
@@ -95,7 +97,6 @@ class Scheduler:
 
             durations = dict()
             ranks = dict()
-            days = dict()
 
             for user in users:
                 obj = DB.get_today_user_useful_time(user['user_id'])
@@ -121,19 +122,12 @@ class Scheduler:
 
                 durations[username] = duration
 
-                if duration >= 2:
-                    day = int(user['day']) + 1
-                else:
-                    day = 0
-
-                DB.set_user_day(user['user_id'], day)
-
-                days[username] = day
+                hours = DB._get_user_useful_time(user['user_id'], 'all')['time']
 
                 rank = all_ranks[0]['name']
 
                 for obj in all_ranks:
-                    if obj['min_days'] <= day:
+                    if obj['min_hours'] <= hours:
                         rank = obj['name']
                     else:
                         break
@@ -149,10 +143,9 @@ class Scheduler:
             emoji = ['🔹', '🔸']
 
             for name in durations:
-                string += "%s%s \- _%s_ \(*%d* дней подряд, звание *%s*\)\n" % (emoji[i % 2],
+                string += "%s%s \- _%s_ \(Звание *%s*\)\n" % (emoji[i % 2],
                                                                                 name,
                                                                                self.get_string_by_duration(durations[name]),
-                                                                               days[name],
                                                                                ranks[name])
                 i+=1
 

@@ -2,6 +2,7 @@ from telegram import InlineKeyboardButton, Update, CallbackQuery, InlineKeyboard
 from telegram.ext import CallbackContext, Updater, CommandHandler
 from data.database import DB
 import os
+from math import floor
 
 
 class CommandHandlers:
@@ -42,10 +43,12 @@ class CommandHandlers:
         emoji = ["🔸", "🔹"]
 
         for user in users:
+            hours = DB._get_user_useful_time(user['user_id'], 'all')['time']
+
             rank = ranks[0]['name']
 
             for obj in ranks:
-                if obj['min_days'] <= user['day']:
+                if obj['min_hours'] <= hours:
                     rank = obj['name']
                 else:
                     break
@@ -53,10 +56,13 @@ class CommandHandlers:
             username = user['username'].replace("_","\_")
             username = username.replace(".", "\.")
 
-            string += "%s `%s` \- *%s* \(%d дней подряд\)\n" % (emoji[i % 2],
+            if hours < 0:
+                hours = 0
+
+            string += "%s `%s` \- *%s* \(%d часов с пользой\)\n" % (emoji[i % 2],
                                                                   username,
                                                                   rank,
-                                                                  user['day'])
+                                                                  floor(hours))
 
         update.message.reply_text(
             text=string,

@@ -68,6 +68,7 @@ class DataBase:
         cur.execute("SELECT * FROM activity_names")
         return cur.fetchall()
 
+    @with_connection
     def _get_user_useful_time(self, user_id, period, cur):
 
         if period == 'week':
@@ -82,7 +83,7 @@ class DataBase:
         cur.execute(
             "SELECT s.time, active.start_time FROM "
             "("
-            "SELECT SUM(a.duration) as time, a.user_id FROM activities a "
+            "SELECT IFNULL(SUM(a.duration), 0) as time, a.user_id FROM activities a "
             "JOIN activity_names an ON a.activity_id = an.id "
             "WHERE a.user_id=%d AND an.challenge=1 %s "
             ") s "
@@ -92,9 +93,8 @@ class DataBase:
 
         return cur.fetchone()
 
-    @with_connection
-    def get_user_useful_time(self, user_id, period, cur):
-        return self.__hours_to_str(self._get_user_useful_time(user_id, period, cur))
+    def get_user_useful_time(self, user_id, period):
+        return self.__hours_to_str(self._get_user_useful_time(user_id, period))
 
     @with_connection
     def get_today_user_useful_time(self, user_id, cur):
