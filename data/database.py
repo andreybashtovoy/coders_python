@@ -348,7 +348,7 @@ class DataBase:
     @with_connection
     def get_all_chats(self, cur):
         cur.execute("SELECT * FROM chats")
-        return cur.fetchone()
+        return cur.fetchall()
 
     @with_connection
     def get_chat_active_users(self, chat_id, cur):
