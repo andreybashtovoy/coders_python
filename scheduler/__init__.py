@@ -32,124 +32,132 @@ class Scheduler:
         return "{} часов {} минут {} секунд".format(hours, minutes, seconds)
 
     def tag_active(self, *args, **afqwe):
-        active_users = DB.get_active_users()
+        chats = DB.get_all_chats()
 
-        if len(active_users) > 0:
+        for chat in chats:
 
-            endings = ["ов", "", "а", "а", "а", "ов", "ов", "ов", "ов", "ов"]
+            active_users = DB.get_chat_active_users(chat['chat_id'])
 
-            string = "🟢 *{} участник{} чата сейчас онлайн:*\n\n".format(len(active_users),
-                                                                         endings[len(active_users) % 10])
-            data_now = datetime.datetime.now()
+            if len(active_users) > 0:
 
+                endings = ["ов", "", "а", "а", "а", "ов", "ов", "ов", "ов", "ов"]
+
+                string = "🟢 *{} участник{} чата сейчас онлайн:*\n\n".format(len(active_users),
+                                                                             endings[len(active_users) % 10])
+                data_now = datetime.datetime.now()
+
+                all_ranks = DB.get_all_ranks()
+
+                for user in active_users:
+                    data_start = datetime.datetime.strptime(user['start_time'], '%Y-%m-%d %H:%M:%S')
+                    duration = (data_now - data_start).seconds / 3600
+
+                    if user['username'] != "None":
+
+                        if user['tag']:
+                            username = ("@" + user['username'].replace("_", "\_"))
+                            username = username.replace(".", "\.")
+                        else:
+                            username = ("`" + user['username'].replace("_", "\_") + "`")
+                    else:
+                        if user['tag']:
+                            username = "[{}](tg://user?id={})".format(user['user_id'], user['user_id'])
+                        else:
+                            username = str(user['user_id'])
+
+                    rank = all_ranks[0]['name']
+
+                    for obj in all_ranks:
+                        if obj['min_days'] <= user['day']:
+                            rank = obj['name']
+                        else:
+                            break
+
+                    string += "🔸{} \[`{}`\] \- *{}* \(_{}_\)\n".format(username, rank, user['name'],
+                                                               self.get_string_by_duration(duration))
+
+                string += "\n`Не тегать меня - ` /disable\_tag"
+
+                self.updater.bot.send_message(
+                    chat_id=chat['chat_id'],
+                    #chat_id=-1001243947001,
+                    text=string,
+                    parse_mode="MarkdownV2"
+                )
+
+    def tag_all(self):
+
+        chats = DB.get_all_chats()
+
+        for chat in chats:
+            users = DB.get_chat_users(chat['chat_id'])
             all_ranks = DB.get_all_ranks()
 
-            for user in active_users:
-                data_start = datetime.datetime.strptime(user['start_time'], '%Y-%m-%d %H:%M:%S')
-                duration = (data_now - data_start).seconds / 3600
+            durations = dict()
+            ranks = dict()
+            days = dict()
+
+            for user in users:
+                obj = DB.get_today_user_useful_time(user['user_id'])
+
+                now = datetime.datetime.now()
+
+                if obj['time'] is not None:
+                    duration = float(obj['time'])
+
+                    if obj['start_time'] is not None:
+                        data_start = datetime.datetime.strptime(obj['start_time'], '%Y-%m-%d %H:%M:%S')
+
+                        diff = (now - data_start).seconds / 3600
+                        duration = duration + diff
+                else:
+                    duration = 0
 
                 if user['username'] != "None":
-
-                    if user['tag']:
-                        username = ("@" + user['username'].replace("_", "\_"))
-                        username = username.replace(".", "\.")
-                    else:
-                        username = ("`" + user['username'].replace("_", "\_") + "`")
+                    username = ("@" + user['username'].replace("_", "\_"))
+                    username = username.replace(".", "\.")
                 else:
-                    if user['tag']:
-                        username = "[{}](tg://user?id={})".format(user['user_id'], user['user_id'])
-                    else:
-                        username = str(user['user_id'])
+                    username = "[{}](tg://user?id={})".format(user['user_id'], user['user_id'])
+
+                durations[username] = duration
+
+                if duration >= 2:
+                    day = int(user['day']) + 1
+                else:
+                    day = 0
+
+                DB.set_user_day(user['user_id'], day)
+
+                days[username] = day
 
                 rank = all_ranks[0]['name']
 
                 for obj in all_ranks:
-                    if obj['min_days'] <= user['day']:
+                    if obj['min_days'] <= day:
                         rank = obj['name']
                     else:
                         break
 
-                string += "🔸{} \[`{}`\] \- *{}* \(_{}_\)\n".format(username, rank, user['name'],
-                                                           self.get_string_by_duration(duration))
+                ranks[username] = rank
 
-            string += "\n`Не тегать меня - ` /disable\_tag"
+            durations = dict(sorted(durations.items(), key=lambda item: item[1], reverse=True))
+
+            string = "🧮 *Итоги дня*\n\n"
+
+            i = 0
+
+            emoji = ['🔹', '🔸']
+
+            for name in durations:
+                string += "%s%s \- _%s_ \(*%d* дней подряд, звание *%s*\)\n" % (emoji[i % 2],
+                                                                                name,
+                                                                               self.get_string_by_duration(durations[name]),
+                                                                               days[name],
+                                                                               ranks[name])
+                i+=1
 
             self.updater.bot.send_message(
-                chat_id=-1001156172516,
-                #chat_id=-1001243947001,
+                chat_id=chat['chat_id'],
                 text=string,
                 parse_mode="MarkdownV2"
             )
-
-    def tag_all(self):
-        users = DB.get_all_users()
-        all_ranks = DB.get_all_ranks()
-
-        durations = dict()
-        ranks = dict()
-        days = dict()
-
-        for user in users:
-            obj = DB.get_today_user_useful_time(user['user_id'])
-
-            now = datetime.datetime.now()
-
-            if obj['time'] is not None:
-                duration = float(obj['time'])
-
-                if obj['start_time'] is not None:
-                    data_start = datetime.datetime.strptime(obj['start_time'], '%Y-%m-%d %H:%M:%S')
-
-                    diff = (now - data_start).seconds / 3600
-                    duration = duration + diff
-            else:
-                duration = 0
-
-            if user['username'] != "None":
-                username = ("@" + user['username'].replace("_", "\_"))
-                username = username.replace(".", "\.")
-            else:
-                username = "[{}](tg://user?id={})".format(user['user_id'], user['user_id'])
-
-            durations[username] = duration
-
-            if duration >= 2:
-                day = int(user['day']) + 1
-            else:
-                day = 0
-
-            DB.set_user_day(user['user_id'], day)
-
-            days[username] = day
-
-            rank = all_ranks[0]['name']
-
-            for obj in all_ranks:
-                if obj['min_days'] <= day:
-                    rank = obj['name']
-                else:
-                    break
-
-            ranks[username] = rank
-
-        durations = dict(sorted(durations.items(), key=lambda item: item[1], reverse=True))
-
-        string = "🧮 *Итоги дня*\n\n"
-
-        i = 0
-
-        emoji = ['🔹', '🔸']
-
-        for name in durations:
-            string += "%s%s \- _%s_ \(*%d* дней подряд, звание *%s*\)\n" % (emoji[i % 2],
-                                                                            name,
-                                                                           self.get_string_by_duration(durations[name]),
-                                                                           days[name],
-                                                                           ranks[name])
-            i+=1
-
-        self.updater.bot.send_message(
-            chat_id=-1001156172516,
-            text=string,
-            parse_mode="MarkdownV2"
-        )

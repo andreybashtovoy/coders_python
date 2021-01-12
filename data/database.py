@@ -345,5 +345,31 @@ class DataBase:
                     "WHERE an.access=2 AND uc.chat_id=%s)" % (user_id, chat_id))
         return cur.fetchall()
 
+    @with_connection
+    def get_all_chats(self, cur):
+        cur.execute("SELECT * FROM chats")
+        return cur.fetchone()
+
+    @with_connection
+    def get_chat_active_users(self, chat_id, cur):
+        cur.execute("SELECT * FROM users_chats uc "
+                    "JOIN "
+                    "("
+                    "SELECT active.start_time, u.user_id, u.username, u.day, u.tag, act.id, act.name FROM "
+                    "(SELECT * FROM activities WHERE duration = 0) active "
+                    "JOIN users u ON active.user_id = u.user_id "
+                    "JOIN activity_names act ON active.activity_id = act.id "
+                    "WHERE active.activity_id NOT IN(0, 9) "
+                    ") all_active ON uc.user_id=all_active.user_id "
+                    "WHERE uc.chat_id=%s;" % chat_id)
+        return cur.fetchall()
+
+    @with_connection
+    def get_chat_users(self, chat_id, cur):
+        cur.execute("SELECT * FROM users_chats uc "
+                    "JOIN users u on uc.user_id = u.user_id "
+                    "WHERE uc.chat_id=%s;" % chat_id)
+        return cur.fetchall()
+
 
 DB = DataBase()
