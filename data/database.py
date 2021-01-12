@@ -163,17 +163,32 @@ class DataBase:
         return cur.fetchone()
 
     @with_connection
-    def start_activity(self, user_id, name, duration, project_id, cur):
+    def start_activity(self, user_id, name, duration, project_id, chat_id, cur):
+        activity_names = self.get_user_accessible_activities(user_id, chat_id)
+
+        activity_id = None
+
+        for obj in activity_names:
+            if obj['name'] == name:
+                activity_id = obj['id']
+                break
+
         cur.execute(
             "UPDATE activities SET duration=" + str(duration) + " WHERE duration=0 AND user_id=" + str(user_id) + ";")
-        cur.execute("INSERT INTO activities(user_id, activity_id, project_id) VALUES(" + str(user_id) + ", (SELECT id FROM " +
-                    "activity_names WHERE " +
-                    "name='" + name + "'), " + (str(project_id) if project_id is not None else "NULL") + ");")
+        cur.execute("INSERT INTO activities(user_id, activity_id, project_id) VALUES(" + str(user_id) +
+                    ", " + str(activity_id) + ", " + (str(project_id) if project_id is not None else "NULL") + ");")
 
     @with_connection
     def get_activity_by_name(self, name, cur):
         cur.execute("SELECT * FROM activity_names WHERE name='%s'" % name)
         return cur.fetchone()
+
+    def get_user_activity_by_name(self, name, user_id, chat_id):
+        activity_names = self.get_user_accessible_activities(user_id, chat_id)
+
+        for obj in activity_names:
+            if obj['name'] == name:
+                return obj
 
     @with_connection
     def get_activity_by_id(self, id, cur):
@@ -296,6 +311,39 @@ class DataBase:
                     (chat.id, chat.title if chat.title is not None else chat.username))
 
         cur.execute("REPLACE INTO users_chats(chat_id, user_id) VALUES (%d, %d)" % (chat.id, user.id))
+
+    @with_connection
+    def get_user_personal_activities(self, user_id, cur):
+        cur.execute('SELECT * FROM activity_names WHERE owner=' + str(user_id))
+        return cur.fetchall()
+
+    @with_connection
+    def create_activity(self, user_id, name, cur):
+        cur.execute("INSERT INTO activity_names(name, owner) "
+                    "VALUES ('%s', %s)" % (name, user_id))
+        cur.execute("SELECT * FROM activity_names WHERE id=(SELECT MAX(id) FROM activity_names)")
+        return cur.fetchone()
+
+    @with_connection
+    def remove_activity(self, activity_id, cur):
+        cur.execute("DELETE FROM activity_names WHERE id=" + str(activity_id))
+
+    @with_connection
+    def set_activity_access(self, activity_id, access, cur):
+        cur.execute("UPDATE activity_names SET access=%d WHERE id=%s" % (access, activity_id))
+
+    @with_connection
+    def set_activity_challenge(self, activity_id, challenge, cur):
+        cur.execute("UPDATE activity_names SET challenge=%d WHERE id=%s" % (challenge, activity_id))
+
+    @with_connection
+    def get_user_accessible_activities(self, user_id, chat_id, cur):
+        cur.execute("SELECT * FROM activity_names WHERE access=0 OR "
+                    "(access=1 AND owner=%s) OR "
+                    "id IN (SELECT an.id FROM users_chats uc "
+                    "JOIN activity_names an ON an.owner=uc.user_id "
+                    "WHERE an.access=2 AND uc.chat_id=%s)" % (user_id, chat_id))
+        return cur.fetchall()
 
 
 DB = DataBase()

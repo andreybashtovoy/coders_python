@@ -9,8 +9,9 @@ from components.start_activity import StartActivity
 from components.projects import ProjectsSelectingActivity
 from components.projects.projects import ProjectsOfActivity
 from components.projects.separate_project import SeparateProject
+from components.activities import Activities
+from components.activities.separate_activity import SeparateActivity
 from commands import CommandHandlers
-from commands.activities import Activities
 from scheduler import Scheduler
 
 warnings.filterwarnings('ignore')
@@ -36,17 +37,32 @@ if __name__ == "__main__":
 
     start_activity = StartActivity(updater)
 
-    menus = [UserStats(updater), Rating(updater), AddTime(updater), selecting_activity
+    activities = []
+
+    activities_obj = Activities(updater, activities)
+    activities.append(activities_obj)
+    separate_activity = SeparateActivity(updater, activities)
+    activities.append(separate_activity)
+
+    menus = [UserStats(updater), Rating(updater), AddTime(updater), selecting_activity, activities_obj
              ]
 
 
     def button_click_handler(update: Update, context: CallbackContext):
+        if "🎲 Занятие:" in update.callback_query.message.text:
+            separate_activity.on_button_click(update, context)
+            return
+
         if "📁 Проект:" in update.callback_query.message.text:
             separate_project.on_button_click(update, context)
             return
 
         if "📂" in update.callback_query.message.text:
             projects_of_activity.on_button_click(update, context)
+            return
+
+        if "🧩 Твои занятия" in update.callback_query.message.text:
+            activities[0].on_button_click(update, context)
             return
 
         if update.callback_query.message.reply_to_message.text.startswith("/start"):
@@ -61,7 +77,7 @@ if __name__ == "__main__":
 
     updater.dispatcher.add_handler(CallbackQueryHandler(button_click_handler))
 
-    has_message_handler = [projects[1]]
+    has_message_handler = [projects[1], activities[0]]
 
 
     def message_handler(update: Update, context: CallbackContext):

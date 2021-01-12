@@ -52,7 +52,7 @@ class StartActivity(Menu):
 
             return keyboard
 
-        activity_names = DB.get_all_activity_names()
+        activity_names = DB.get_user_accessible_activities(state['u_id'], update.effective_chat.id)
 
         names = []
 
@@ -83,7 +83,7 @@ class StartActivity(Menu):
         return False
 
     def is_next_hidden(self, state, update: Update):
-        length = len(DB.get_all_activity_names())
+        length = len(DB.get_user_accessible_activities(state['u_id'], update.effective_chat.id)) - 1
 
         page_count = ceil(length / self.IN_PAGE)
 
@@ -134,9 +134,9 @@ class StartActivity(Menu):
         project = DB.get_active_project(user_id, name)
 
         if project is not None:
-            DB.start_activity(user_id, name, duration, project['id'])
+            DB.start_activity(user_id, name, duration, project['id'], update.effective_chat.id)
         else:
-            DB.start_activity(user_id, name, duration, None)
+            DB.start_activity(user_id, name, duration, None, update.effective_chat.id)
 
         if stopped_activity is not None and stopped_activity['activity_id'] != 0:
             if edit:

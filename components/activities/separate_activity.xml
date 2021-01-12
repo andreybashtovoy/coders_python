@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<MenuButton text='🎲 *Занятие*: _{activity_name}_\n' format="main_menu_format">
+    <ActionButton name="Доступно: Только мне" callback="set_access_for_chat" is_hidden="is_access_for_me_hidden"/>
+    <ActionButton name="Доступно: Всему чату" callback="set_access_for_me" is_hidden="is_access_for_chat_hidden"/>
+    <ActionButton name="С пользой: Да" callback="set_without_benefit" is_hidden="is_with_benefit_hidden"/>
+    <ActionButton name="С пользой: Нет" callback="set_with_benefit" is_hidden="is_without_benefit_hidden"/>
+    <ActionButton name="❌ Удалить" callback="remove"/>
+    <ActionButton name="⬅️ Назад" callback="back"/>
+</MenuButton>

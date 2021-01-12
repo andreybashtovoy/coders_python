@@ -65,7 +65,7 @@ class AddTime(Menu):
 
             return keyboard
 
-        activity_names = DB.get_all_activity_names()
+        activity_names = DB.get_user_accessible_activities(state['u_id'], update.effective_chat.id)
 
         names = []
 
@@ -83,7 +83,7 @@ class AddTime(Menu):
         return get_keyboard_by_names(names[i:i + 4])
 
     def select_activity(self, state, update: Update, name):
-        activity = DB.get_activity_by_name(name)
+        activity = DB.get_user_activity_by_name(name, state['u_id'], update.effective_chat.id)
         state['a'] = activity['id']
         return state
 
@@ -118,7 +118,7 @@ class AddTime(Menu):
         return False
 
     def is_next_hidden(self, state, update: Update):
-        length = len(DB.get_all_activity_names())
+        length = len(DB.get_user_accessible_activities(state['u_id'], update.effective_chat.id)) - 1
 
         page_count = ceil(length / self.IN_PAGE)
 

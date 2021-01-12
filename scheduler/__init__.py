@@ -48,7 +48,7 @@ class Scheduler:
                 data_start = datetime.datetime.strptime(user['start_time'], '%Y-%m-%d %H:%M:%S')
                 duration = (data_now - data_start).seconds / 3600
 
-                if user['username'] != "":
+                if user['username'] != "None":
 
                     if user['tag']:
                         username = ("@" + user['username'].replace("_", "\_"))
@@ -105,7 +105,7 @@ class Scheduler:
             else:
                 duration = 0
 
-            if user['username'] != "":
+            if user['username'] != "None":
                 username = ("@" + user['username'].replace("_", "\_"))
                 username = username.replace(".", "\.")
             else:
