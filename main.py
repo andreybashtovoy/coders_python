@@ -49,21 +49,22 @@ if __name__ == "__main__":
 
 
     def button_click_handler(update: Update, context: CallbackContext):
-        if "🎲 Занятие:" in update.callback_query.message.text:
-            separate_activity.on_button_click(update, context)
-            return
+        if update.callback_query.message.text is not None:
+            if "🎲 Занятие:" in update.callback_query.message.text:
+                separate_activity.on_button_click(update, context)
+                return
 
-        if "📁 Проект:" in update.callback_query.message.text:
-            separate_project.on_button_click(update, context)
-            return
+            if "📁 Проект:" in update.callback_query.message.text:
+                separate_project.on_button_click(update, context)
+                return
 
-        if "📂" in update.callback_query.message.text:
-            projects_of_activity.on_button_click(update, context)
-            return
+            if "📂" in update.callback_query.message.text:
+                projects_of_activity.on_button_click(update, context)
+                return
 
-        if "🧩 Твои занятия" in update.callback_query.message.text:
-            activities[0].on_button_click(update, context)
-            return
+            if "🧩 Твои занятия" in update.callback_query.message.text:
+                activities[0].on_button_click(update, context)
+                return
 
         if update.callback_query.message.reply_to_message.text.startswith("/start"):
             start_activity.on_button_click(update, context)
