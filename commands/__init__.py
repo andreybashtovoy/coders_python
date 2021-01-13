@@ -10,8 +10,7 @@ class CommandHandlers:
         self.__updater = updater
         updater.dispatcher.add_handler(CommandHandler('restart', self.restart))
         updater.dispatcher.add_handler(CommandHandler('get_chat_id', self.get_chat_id))
-        updater.dispatcher.add_handler(CommandHandler('disable_tag', self.disable_tag))
-        updater.dispatcher.add_handler(CommandHandler('enable_tag', self.enable_tag))
+        updater.dispatcher.add_handler(CommandHandler('toggle_tag', self.toggle_tag))
         updater.dispatcher.add_handler(CommandHandler('ranks', self.ranks))
         updater.dispatcher.add_handler(CommandHandler('status', self.status))
 
@@ -22,15 +21,17 @@ class CommandHandlers:
     def get_chat_id(self, update: Update, context: CallbackContext):
         update.message.reply_text(update.effective_chat.id)
 
-    def disable_tag(self, update: Update, context: CallbackContext):
-        DB.disable_tag(update.message.from_user.id)
-        update.message.reply_text("*Ок\. Вернуть теги можешь командой:*\n"
-                                  "/enable\_tag", parse_mode="MarkdownV2")
+    def toggle_tag(self, update: Update, context: CallbackContext):
+        user = DB.get_user_by_id(update.message.from_user.id)
 
-    def enable_tag(self, update: Update, context: CallbackContext):
-        DB.enable_tag(update.message.from_user.id)
-        update.message.reply_text("*Ок\. Отключить теги можешь командой:*\n"
-                                  "/disable\_tag", parse_mode="MarkdownV2")
+        if user['tag']:
+            DB.disable_tag(update.message.from_user.id)
+            update.message.reply_text("☑️ *Ты выключил теги\. Вернуть можешь командой:*\n"
+                                      "/toggle\_tag", parse_mode="MarkdownV2")
+        else:
+            DB.enable_tag(update.message.from_user.id)
+            update.message.reply_text("☑️ *Ты включил теги\. Выключить можешь командой:*\n"
+                                      "/toggle\_tag", parse_mode="MarkdownV2")
 
     def ranks(self, update: Update, context: CallbackContext):
         ranks = DB.get_all_ranks()
