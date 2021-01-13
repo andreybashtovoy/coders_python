@@ -96,9 +96,8 @@ class DataBase:
     def get_user_useful_time(self, user_id, period):
         return self.__hours_to_str(self._get_user_useful_time(user_id, period))
 
-    @with_connection
-    def get_today_user_useful_time(self, user_id, cur):
-        return self._get_user_useful_time(user_id, "today", cur)
+    def get_today_user_useful_time(self, user_id):
+        return self._get_user_useful_time(user_id, "today")
 
     @with_connection
     def get_active_task_user(self, user_id, cur):
@@ -212,7 +211,7 @@ class DataBase:
 
     @with_connection
     def get_all_users(self, cur):
-        cur.execute("SELECT * FROM users ORDER BY day DESC")
+        cur.execute("SELECT * FROM users")
         return cur.fetchall()
 
     @with_connection
