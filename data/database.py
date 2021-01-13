@@ -238,8 +238,9 @@ class DataBase:
         return cur.fetchall()
 
     @with_connection
-    def get_project_by_name(self, user_id, name, cur):
-        cur.execute("SELECT * FROM projects WHERE user_id=%s AND name='%s'" % (user_id, name))
+    def get_project_by_name(self, user_id, activity_id, name, cur):
+        cur.execute("SELECT * FROM projects WHERE user_id=%s AND activity_id=%s AND name='%s'" %
+                    (user_id, activity_id, name))
         return cur.fetchone()
 
     @with_connection

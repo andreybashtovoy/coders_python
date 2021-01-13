@@ -21,7 +21,7 @@ class ProjectsOfActivity(Menu):
         )
 
     def select_project(self, state, update: Update, name):
-        project = DB.get_project_by_name(state['u_id'], name)
+        project = DB.get_project_by_name(state['u_id'], state['a'], name)
         state['p_id'] = project['id']
         return state
 
