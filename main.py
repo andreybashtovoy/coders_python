@@ -50,6 +50,10 @@ if __name__ == "__main__":
 
     def button_click_handler(update: Update, context: CallbackContext):
         if update.callback_query.message.text is not None:
+            if "посмотреть проекты" in update.callback_query.message.text:
+                selecting_activity.on_button_click(update, context)
+                return
+
             if "🎲 Занятие:" in update.callback_query.message.text:
                 separate_activity.on_button_click(update, context)
                 return

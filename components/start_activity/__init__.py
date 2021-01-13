@@ -173,3 +173,15 @@ class StartActivity(Menu):
         self.start_activity(state['u_id'], name, update)
 
         return False
+
+    def cancel(self, update: Update, state):
+        if update.callback_query is not None and update.callback_query.from_user.id != int(state['u_id']):
+            update.callback_query.answer(text="Меню было вызвано другим пользователем.", show_alert=True)
+            return False
+
+        update.callback_query.message.edit_text(
+            text="✖️ *Ты отменил занятие.*",
+            parse_mode="Markdown"
+        )
+
+        return False
