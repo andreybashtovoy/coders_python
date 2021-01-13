@@ -78,7 +78,7 @@ class Scheduler:
                     string += "🔸{} \[`{}`\] \- *{}* \(_{}_\)\n".format(username, rank, user['name'],
                                                                self.get_string_by_duration(duration))
 
-                string += "\n`Выключить/включить теги - ` /toggle\_tag"
+                string += "\n`Выключить/включить теги \- ` /toggle\_tag"
 
                 self.updater.bot.send_message(
                     chat_id=chat['chat_id'],
