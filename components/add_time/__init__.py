@@ -98,11 +98,17 @@ class AddTime(Menu):
     def minus_30(self, state, update: Update):
         return self.add_time(-30, state, update)
 
+    def minus_60(self, state, update: Update):
+        return self.add_time(-60, state, update)
+
     def plus_10(self, state, update: Update):
         return self.add_time(10, state, update)
 
     def plus_30(self, state, update: Update):
         return self.add_time(30, state, update)
+
+    def plus_60(self, state, update: Update):
+        return self.add_time(60, state, update)
 
     def next_page(self, state, update: Update):
         state['p'] = int(state['p']) + 1
