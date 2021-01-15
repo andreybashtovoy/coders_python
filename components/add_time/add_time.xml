@@ -18,5 +18,9 @@
         <ActionButton name="⬅️" action="prev_page" is_hidden="is_prev_hidden"/>
         <ActionButton name="➡️" action="next_page" is_hidden="is_next_hidden"/>
     </Row>
-    <ActionButton name="✅ Добавить" callback="done"/>
+    <Row>
+        <ActionButton name="✅ Добавить" callback="done"/>
+        <ActionButton name="❌ Отмена" callback="cancel"/>
+    </Row>
+
 </MenuButton>

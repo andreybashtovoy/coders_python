@@ -176,3 +176,20 @@ class AddTime(Menu):
         )
 
         return False
+
+    def cancel(self, update: Update, state):
+        if update.callback_query is not None and update.callback_query.from_user.id != int(state['u_id']):
+            update.callback_query.answer(text="Меню было вызвано другим пользователем.", show_alert=True)
+            return False
+
+        try:
+            update.callback_query.message.reply_to_message.delete()
+            update.callback_query.message.delete()
+        except:
+            update.callback_query.message.edit_text(
+                text="✖️ *Ты отменил занятие.*\n\n"
+                     "`Чтобы бот мог удалять сообщения при отмене, ему нужны права администратора.`",
+                parse_mode="Markdown"
+            )
+
+        return False

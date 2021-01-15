@@ -126,7 +126,7 @@ class StartActivity(Menu):
         if active_activity is not None:
             data_now = datetime.datetime.now()
             data_start = datetime.datetime.strptime(active_activity['start_time'], '%Y-%m-%d %H:%M:%S')
-            duration = (data_now - data_start).seconds / 3600 - penalty/60
+            duration = (data_now - data_start).seconds / 3600 - penalty / 60
 
             stopped_activity = active_activity
             stopped_activity['duration'] = duration
@@ -179,9 +179,14 @@ class StartActivity(Menu):
             update.callback_query.answer(text="Меню было вызвано другим пользователем.", show_alert=True)
             return False
 
-        update.callback_query.message.edit_text(
-            text="✖️ *Ты отменил занятие.*",
-            parse_mode="Markdown"
-        )
+        try:
+            update.callback_query.message.reply_to_message.delete()
+            update.callback_query.message.delete()
+        except:
+            update.callback_query.message.edit_text(
+                text="✖️ *Ты отменил занятие.*\n\n"
+                     "`Чтобы бот мог удалять сообщения при отмене, ему нужны права администратора.`",
+                parse_mode="Markdown"
+            )
 
         return False
