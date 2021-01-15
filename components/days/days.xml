@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<MenuButton text="📊 *Твоя статистика за {day}*\n\n
+                  {stats}\n
+                  ⏱ *Время с пользой*: {time}" initial_state="initial_state"
+            format="text_format">
+    <Row>
+        <ActionButton name="⬅️" action="prev_page" is_hidden="is_prev_hidden"/>
+        <ActionButton name="➡️" action="next_page" is_hidden="is_next_hidden"/>
+    </Row>
+</MenuButton>

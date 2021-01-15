@@ -371,5 +371,21 @@ class DataBase:
                     "WHERE uc.chat_id=%s;" % chat_id)
         return cur.fetchall()
 
+    @with_connection
+    def get_user_activities_by_day(self, user_id, day, cur):
+        cur.execute(("SELECT main.sum, an.name as activity_name, an.challenge,"
+                    "p.name as project_name, main.start_time FROM ("
+                    "SELECT SUM(duration) as sum, start_time, activity_id, project_id "
+                    "FROM activities "
+                    "WHERE start_time < DATE('now', 'localtime', '%d days') "
+                    "AND start_time > DATE('now', 'localtime', '%d days') "
+                    "AND user_id = %s "
+                    "and activity_id != 0 "
+                    "GROUP BY activity_id, project_id "
+                    ") main "
+                    "JOIN activity_names an ON main.activity_id = an.id "
+                    "LEFT JOIN projects p ON main.project_id = p.id "
+                    "ORDER BY sum DESC") % (int(day)+1, int(day), user_id))
+        return cur.fetchall()
 
 DB = DataBase()
