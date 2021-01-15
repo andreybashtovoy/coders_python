@@ -65,7 +65,7 @@ if __name__ == "__main__":
                 separate_project.on_button_click(update, context)
                 return
 
-            if "📂" in update.callback_query.message.text:
+            if "📂 Проекты занятия" in update.callback_query.message.text:
                 projects_of_activity.on_button_click(update, context)
                 return
 
