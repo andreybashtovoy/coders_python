@@ -11,6 +11,7 @@ from components.projects.projects import ProjectsOfActivity
 from components.projects.separate_project import SeparateProject
 from components.activities import Activities
 from components.activities.separate_activity import SeparateActivity
+from components.help import Help
 from components.days import Days
 from commands import CommandHandlers
 from scheduler import Scheduler
@@ -45,7 +46,8 @@ if __name__ == "__main__":
     separate_activity = SeparateActivity(updater, activities)
     activities.append(separate_activity)
 
-    menus = [UserStats(updater), Rating(updater), AddTime(updater), selecting_activity, activities_obj, Days(updater)
+    menus = [UserStats(updater), Rating(updater), AddTime(updater),
+             selecting_activity, activities_obj, Days(updater), Help(updater)
              ]
 
 

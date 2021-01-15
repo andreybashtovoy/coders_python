@@ -4,8 +4,8 @@
             initial_state="initial_state"
             format="text_format">
     <Row>
-        <ActionButton name="-1 час." action="minus_60" callback="check"/>
-        <ActionButton name="+1 час." action="plus_60" callback="check"/>
+        <ActionButton name="-1 час" action="minus_60" callback="check"/>
+        <ActionButton name="+1 час" action="plus_60" callback="check"/>
     </Row>
     <Row>
         <ActionButton name="-30 мин." action="minus_30" callback="check"/>

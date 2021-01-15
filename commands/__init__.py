@@ -36,7 +36,7 @@ class CommandHandlers:
     def ranks(self, update: Update, context: CallbackContext):
         ranks = DB.get_all_ranks()
 
-        users = DB.get_all_users()
+        users = DB.get_chat_users(update.effective_chat.id)
 
         string = "🧩 *Звания участников чата*\n\n"
 

@@ -1,10 +1,15 @@
 <?xml version="1.0"?>
-<MenuButton text="📊 *Твоя статистика за {day}*\n\n
-                  {stats}\n
-                  ⏱ *Время с пользой*: {time}" initial_state="initial_state"
-            format="text_format">
-    <Row>
-        <ActionButton name="⬅️" action="prev_page" is_hidden="is_prev_hidden"/>
-        <ActionButton name="➡️" action="next_page" is_hidden="is_next_hidden"/>
-    </Row>
-</MenuButton>
+<SwitchMenu>
+    <SwitchButton name="Команды" text="start - начать занятие\n
+                                        stop - остановить занятие\n
+                                        add - добавить время к занятию\n
+                                        stats - посмотреть свою статистику\n
+                                        days - посмотреть статистику по дням\n
+                                        rating - рейтинг учасников чата\n
+                                        projects - мои проекты\n
+                                        activities - мои занятия\n
+                                        toggle\_tag - включить\/выключить теги\n
+                                        ranks - звания всех участников\n
+                                        status - текущее занятие"/>
+    <SwitchButton name="Какая-то дичь" text="Дичь"/>
+</SwitchMenu>
