@@ -155,7 +155,7 @@ class Menu:
                                                 'id') + "&" + self.get_state_string(state))
 
         if elem.tag == "SwitchButton":
-            text = get_text(elem).replace("_","\_")
+            text = get_text(elem)
             keyboard = []
 
             parent = self.root.find('.//*[@id="{}"]...'.format(state['opened_menu']))

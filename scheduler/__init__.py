@@ -5,6 +5,7 @@ from telegram.ext import Updater, CommandHandler
 from data.database import DB
 import datetime
 from math import floor, ceil
+from telegram.error import Unauthorized
 
 
 class Scheduler:
@@ -80,12 +81,20 @@ class Scheduler:
 
                 string += "\n`Выключить/включить теги \- ` /toggle\_tag"
 
-                self.updater.bot.send_message(
-                    chat_id=chat['chat_id'],
-                    #chat_id=-1001243947001,
-                    text=string,
-                    parse_mode="MarkdownV2"
-                )
+                try:
+
+                    self.updater.bot.send_message(
+                        chat_id=chat['chat_id'],
+                        #chat_id=-1001243947001,
+                        text=string,
+                        parse_mode="MarkdownV2"
+                    )
+
+                except Unauthorized as e:
+                    if 'bot was blocked by the user' in e.message:
+                        print(f'Blocked by user id=%s' % chat['chat_id'])
+                    else:
+                        raise
 
     def tag_all(self):
 
@@ -149,8 +158,16 @@ class Scheduler:
                                                                                ranks[name])
                 i+=1
 
-            self.updater.bot.send_message(
-                chat_id=chat['chat_id'],
-                text=string,
-                parse_mode="MarkdownV2"
-            )
+            try:
+
+                self.updater.bot.send_message(
+                    chat_id=chat['chat_id'],
+                    text=string,
+                    parse_mode="MarkdownV2"
+                )
+
+            except Unauthorized as e:
+                if 'bot was blocked by the user' in e.message:
+                    print(f'Blocked by user id=%s' % chat['chat_id'])
+                else:
+                    raise

@@ -10,8 +10,8 @@ class Rating(Menu):
     def __init__(self, updater: Updater):
         super().__init__(updater, 'components/rating/rating.xml', 'rating')
 
-    def __get_string(self, period):
-        rating = DB.get_rating(period)
+    def __get_string(self, period, chat_id):
+        rating = DB.get_rating(period, chat_id)
 
         users = {}
 
@@ -47,14 +47,14 @@ class Rating(Menu):
 
         return string
 
-    def all_time(self, text, update, state):
-        return text.format(self.__get_string("all_time"))
+    def all_time(self, text, update: Update, state):
+        return text.format(self.__get_string("all_time", update.effective_chat.id))
 
-    def month(self, text, update, state):
-        return text.format(self.__get_string("month"))
+    def month(self, text, update: Update, state):
+        return text.format(self.__get_string("month", update.effective_chat.id))
 
-    def week(self, text, update, state):
-        return text.format(self.__get_string("week"))
+    def week(self, text, update: Update, state):
+        return text.format(self.__get_string("week", update.effective_chat.id))
 
-    def day(self, text, update, state):
-        return text.format(self.__get_string("day"))
+    def day(self, text, update: Update, state):
+        return text.format(self.__get_string("day", update.effective_chat.id))

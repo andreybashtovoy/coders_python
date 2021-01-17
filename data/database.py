@@ -121,7 +121,7 @@ class DataBase:
         }
 
     @with_connection
-    def get_rating(self, period, cur):
+    def get_rating(self, period, chat_id, cur):
         condition = ""
 
         if period == "month":
