@@ -18,7 +18,7 @@ class UserStats(Menu):
                 user = DB.get_by_username(update.message.from_user.username)
         else:
             print(update.message.reply_to_message.from_user.username)
-            user = DB.get_by_username(update.message.reply_to_message.from_user.username)
+            user = DB.get_user_by_id(update.message.reply_to_message.from_user.id)
 
         if user is None:
             return {}
