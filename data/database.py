@@ -140,7 +140,10 @@ class DataBase:
             "JOIN (SELECT * FROM activities WHERE duration=0) a on p.user_id = a.user_id " +
             "WHERE an.challenge = 1 " + condition +
             "GROUP BY p.user_id) main " +
-            "JOIN activity_names act ON main.current_activity = act.id;")
+            "JOIN activity_names act ON main.current_activity = act.id "
+            "WHERE main.user_id IN ("
+            "SELECT user_id FROM users_chats uc "
+            "WHERE uc.chat_id=%s)" % chat_id)
 
         return cur.fetchall()
 
