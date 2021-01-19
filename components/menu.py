@@ -1,4 +1,4 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto
 from telegram.ext import CommandHandler, CallbackContext, CallbackQueryHandler, Updater
 
 from data.ds import Data
@@ -87,13 +87,23 @@ class Menu:
 
             return text
 
-        def send_message(message_text, message_keyboard):
+        def send_message(message_text, message_keyboard, img=None):
+
             if send:
-                update.message.reply_text(
-                    text=message_text,
-                    parse_mode="Markdown",
-                    reply_markup=InlineKeyboardMarkup(message_keyboard))
+                if img is not None:
+                    update.message.reply_photo(
+                        caption=message_text,
+                        photo=img,
+                        parse_mode="Markdown",
+                        reply_markup=InlineKeyboardMarkup(message_keyboard)
+                    )
+                else:
+                    update.message.reply_text(
+                        text=message_text,
+                        parse_mode="Markdown",
+                        reply_markup=InlineKeyboardMarkup(message_keyboard))
             elif resend:
+
                 context.bot.send_message(
                     chat_id=update.effective_chat.id,
                     reply_to_message_id=update.callback_query.message.reply_to_message.message_id,
@@ -104,11 +114,23 @@ class Menu:
 
                 update.callback_query.message.delete()
             else:
-                update.callback_query.edit_message_text(
-                    text=message_text,
-                    reply_markup=InlineKeyboardMarkup(message_keyboard),
-                    parse_mode="Markdown"
-                )
+
+                if img is not None:
+                    update.callback_query.message.edit_media(
+                        InputMediaPhoto(
+                            media=img,
+                            caption=message_text,
+                            parse_mode="Markdown"
+                        ),
+                        reply_markup=InlineKeyboardMarkup(message_keyboard)
+                    )
+                else:
+
+                    update.callback_query.edit_message_text(
+                        text=message_text,
+                        reply_markup=InlineKeyboardMarkup(message_keyboard),
+                        parse_mode="Markdown"
+                    )
 
         def get_button(child, parent, state, row_child=None):
             if child is None:
@@ -174,6 +196,11 @@ class Menu:
             text = get_text(elem)
             keyboard = []
 
+            img = None
+
+            if elem.get('image') is not None:
+                img = getattr(Data, elem.get('image'))(state, update.effective_chat.id)
+
             for child in elem:
                 if child.tag == 'Row':
                     keyboard.append(
@@ -210,7 +237,7 @@ class Menu:
                                                           './/*[@id="{}"]...'.format(id)).get(
                                                           'id') + "&" + self.get_state_string(state))])
 
-            send_message(text, keyboard)
+            send_message(text, keyboard, img)
         elif elem.tag == "PlotButton":
             keyboard = [
                 [

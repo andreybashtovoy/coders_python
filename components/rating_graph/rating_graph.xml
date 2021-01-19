@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<MenuButton image="plot_rating" text="👤 *{members_count} участник{ending} отображено*\n
+*📊 Данные за последние {days} дней*" format="text_format" initial_state="initial_state">
+    <Row>
+        <ActionButton name="-5 дней" action="minus_5_days" is_hidden="is_minus_5_hidden"/>
+        <ActionButton name="-1 день" action="minus_1_day" is_hidden="is_minus_1_hidden"/>
+        <ActionButton name="+1 день" action="plus_1_day" is_hidden="is_plus_1_hidden"/>
+        <ActionButton name="+5 дней" action="plus_5_days" is_hidden="is_plus_5_hidden"/>
+    </Row>
+    <Row>
+        <ActionButton name="-1 участник" action="minus_1_member" is_hidden="is_minus_1_member_hidden"/>
+        <ActionButton name="+1 участник" action="plus_1_member" is_hidden="is_plus_1_member_hidden"/>
+    </Row>
+</MenuButton>

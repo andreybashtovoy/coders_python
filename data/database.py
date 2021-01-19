@@ -391,4 +391,18 @@ class DataBase:
                     "ORDER BY sum DESC") % (int(day)+1, int(day), user_id))
         return cur.fetchall()
 
+    @with_connection
+    def get_chat_active_days(self, chat_id, cur):
+        cur.execute("SELECT MIN(start_time) as min FROM activities WHERE user_id IN "
+                    "(SELECT u.user_id FROM users_chats uc "
+                    "JOIN users u on uc.user_id = u.user_id "
+                    "WHERE uc.chat_id=%s)" % chat_id)
+
+        date = datetime.datetime.strptime(cur.fetchone()['min'], '%Y-%m-%d %H:%M:%S').date()
+        now = datetime.datetime.now().date()
+
+        return (now - date).days + 1
+
+
+
 DB = DataBase()
