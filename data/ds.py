@@ -261,7 +261,7 @@ class DataMethods:
         cmap = plt.cm.get_cmap('Dark2', len(y))
 
         fig, ax = plt.subplots(1, 1, figsize=(11, 8))
-        fig.subplots_adjust(left=.1, right=.85, bottom=0.1, top=.94)
+        fig.subplots_adjust(left=.1, right=.83, bottom=0.2, top=.94)
 
         for i, (column, position) in enumerate(positions.items()):
             # Get a color

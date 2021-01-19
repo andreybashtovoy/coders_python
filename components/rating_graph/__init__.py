@@ -15,7 +15,7 @@ class RatingGraph(Menu):
         members_count = len(DB.get_chat_users(update.effective_chat.id))
 
         return {
-            "members": members_count,
+            "members": members_count if members_count < 7 else 7,
             "days": active_days,
             "md": active_days,
             "mm": members_count
