@@ -90,13 +90,8 @@ class Scheduler:
                         parse_mode="MarkdownV2"
                     )
 
-                except Unauthorized as e:
-                    if 'bot was blocked by the user' in e.message:
-                        print(f'Blocked by user id=%s' % chat['chat_id'])
-                    elif 'Chat not found' in e.message:
-                        print('Chat not found')
-                    else:
-                        raise
+                except Exception as e:
+                    print(e.message)
 
     def tag_all(self):
 
@@ -168,10 +163,5 @@ class Scheduler:
                     parse_mode="MarkdownV2"
                 )
 
-            except Unauthorized as e:
-                if 'bot was blocked by the user' in e.message:
-                    print(f'Blocked by user id=%s' % chat['chat_id'])
-                elif 'Chat not found' in e.message:
-                    print('Chat not found')
-                else:
-                    raise
+            except Exception as e:
+                print(e.message)
