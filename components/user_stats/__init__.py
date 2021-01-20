@@ -15,7 +15,7 @@ class UserStats(Menu):
             if len(text) > 1 and text[1][0] == '@':
                 user = DB.get_by_username(text[1][1:])
             else:
-                user = DB.get_by_username(update.message.from_user.username)
+                user = DB.get_user_by_id(update.message.from_user.id)
         else:
             print(update.message.reply_to_message.from_user.username)
             user = DB.get_user_by_id(update.message.reply_to_message.from_user.id)

@@ -95,7 +95,8 @@ class Menu:
                         caption=message_text,
                         photo=img,
                         parse_mode="Markdown",
-                        reply_markup=InlineKeyboardMarkup(message_keyboard)
+                        reply_markup=InlineKeyboardMarkup(message_keyboard),
+                        quote=True
                     )
                 else:
                     update.message.reply_text(
