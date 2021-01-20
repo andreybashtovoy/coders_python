@@ -48,7 +48,8 @@ class ProjectsSelectingActivity(Menu):
         counted = DB.count_user_activities(state['u_id'])
 
         for obj in counted:
-            names.append(obj['name'])
+            if obj['name'] in [x['name'] for x in activity_names]:
+                names.append(obj['name'])
 
         for activity in activity_names:
             if activity['name'] not in names and activity['id'] != 0:

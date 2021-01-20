@@ -167,6 +167,7 @@ class DataBase:
     @with_connection
     def start_activity(self, user_id, name, duration, project_id, chat_id, cur):
         activity_names = self.get_user_accessible_activities(user_id, chat_id)
+        print(activity_names)
 
         activity_id = None
 
@@ -174,6 +175,9 @@ class DataBase:
             if obj['name'] == name:
                 activity_id = obj['id']
                 break
+
+        print("INSERT INTO activities(user_id, activity_id, project_id) VALUES(" + str(user_id) +
+                    ", " + str(activity_id) + ", " + (str(project_id) if project_id is not None else "NULL") + ");")
 
         cur.execute(
             "UPDATE activities SET duration=" + str(duration) + " WHERE duration=0 AND user_id=" + str(user_id) + ";")
