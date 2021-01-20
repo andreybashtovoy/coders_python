@@ -101,7 +101,9 @@ class Menu:
                     update.message.reply_text(
                         text=message_text,
                         parse_mode="Markdown",
-                        reply_markup=InlineKeyboardMarkup(message_keyboard))
+                        reply_markup=InlineKeyboardMarkup(message_keyboard),
+                        quote=True
+                    )
             elif resend:
 
                 context.bot.send_message(
