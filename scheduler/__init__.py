@@ -93,6 +93,8 @@ class Scheduler:
                 except Unauthorized as e:
                     if 'bot was blocked by the user' in e.message:
                         print(f'Blocked by user id=%s' % chat['chat_id'])
+                    elif 'Chat not found' in e.message:
+                        print('Chat not found')
                     else:
                         raise
 
@@ -169,5 +171,7 @@ class Scheduler:
             except Unauthorized as e:
                 if 'bot was blocked by the user' in e.message:
                     print(f'Blocked by user id=%s' % chat['chat_id'])
+                elif 'Chat not found' in e.message:
+                    print('Chat not found')
                 else:
                     raise

@@ -1,13 +1,23 @@
 from components.menu import Menu
 from telegram import Update
-from telegram.ext import Updater
+from telegram.ext import Updater, CommandHandler, CallbackContext
 from data.database import DB
 from data.ds import Data
 
 
 class UserStats(Menu):
     def __init__(self, updater: Updater):
-        super().__init__(updater, 'components/user_stats/user_stats.xml', 'stats')
+        super().__init__(updater, 'components/user_stats/user_stats.xml')
+        updater.dispatcher.add_handler(CommandHandler('stats', self.open))
+        self.command = 'stats'
+
+    def open(self, update: Update, context: CallbackContext):
+        if DB.has_user_activities(update.message.from_user.id):
+            self.send(update, context)
+        else:
+            update.message.reply_text(
+                text="Чтобы получить личную статистику, необходимо запустить хотя бы одно занятие командой /start."
+            )
 
     def initial_state(self, update: Update):
         if update.message.reply_to_message is None:

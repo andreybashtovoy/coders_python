@@ -1,6 +1,6 @@
 from components.menu import Menu
 from telegram import Update
-from telegram.ext import Updater
+from telegram.ext import Updater, CommandHandler, CallbackContext
 from data.database import DB
 from data.ds import Data
 import datetime
@@ -8,7 +8,21 @@ from math import floor, ceil
 
 class RatingGraph(Menu):
     def __init__(self, updater: Updater):
-        super().__init__(updater, 'components/rating_graph/rating_graph.xml', 'rating_graph')
+        super().__init__(updater, 'components/rating_graph/rating_graph.xml')
+        updater.dispatcher.add_handler(CommandHandler('rating_graph', self.open))
+        self.command = 'rating_graph'
+
+    def open(self, update: Update, context: CallbackContext):
+        if DB.has_chat_activities(update.effective_chat.id):
+            self.send(update, context)
+        else:
+            update.message.reply_text(
+                text="Чтобы получить график изменения рейтинга участников чата по времени с пользой, необходимо, "
+                     "чтобы хотя бы один участник запустил *полезное* занятие командой /start"
+                     " и завершил командой /stop. Также чат должен существовать не менее одного дня.\n\n"
+                     "Посмотреть текущий рейтинг участников чата можно командой /rating.",
+                parse_mode="Markdown"
+            )
 
     def initial_state(self, update: Update):
         active_days = DB.get_chat_active_days(update.effective_chat.id)

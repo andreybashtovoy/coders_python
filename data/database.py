@@ -407,6 +407,21 @@ class DataBase:
 
         return (now - date).days + 1
 
+    @with_connection
+    def has_user_activities(self, user_id, cur):
+        cur.execute("SELECT COUNT(*) as count FROM activities WHERE user_id=%s;" % user_id)
+        return cur.fetchone()['count'] != 0
+
+    @with_connection
+    def has_chat_activities(self, chat_id, cur):
+        cur.execute("SELECT COUNT(*) as count FROM activities a "
+                    "JOIN activity_names an on an.id = a.activity_id "
+                    "WHERE a.user_id IN "
+                    "(SELECT user_id FROM users_chats WHERE chat_id=%s) AND "
+                    "an.challenge = 1 AND a.duration > 0 "
+                    "AND a.start_time < DATE('now', 'localtime')" % chat_id)
+        return cur.fetchone()['count'] != 0
+
 
 
 DB = DataBase()

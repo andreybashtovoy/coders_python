@@ -140,7 +140,7 @@ class DataMethods:
         activities = pd.read_sql_query("SELECT * from activities WHERE activity_id=9 AND user_id=" + str(user_id), con)
 
         if activities.shape[0] == 0:
-            return "ХЗ", "ХЗ"
+            return "?", "?"
 
         mean = ":".join(self.seconds_to_str(activities.duration.mean() * 60 * 60))
         std = ":".join(self.seconds_to_str(activities.duration.std() * 60 * 60))
@@ -152,13 +152,13 @@ class DataMethods:
         activities = pd.read_sql_query("SELECT * from activities WHERE activity_id=9 AND user_id=" + str(user_id), con)
 
         if activities.shape[0] == 0:
-            return "ХЗ", "ХЗ"
+            return "?", "?"
 
         seconds = activities.start_time.apply(self.to_seconds)
         time = seconds[~seconds.between(60 * 60 * 6, 60 * 60 * 19)]
 
         if len(time) == 0:
-            return "ХЗ", "ХЗ"
+            return "?", "?"
 
         mean = ":".join(self.seconds_to_str(time.mean()))
         std = ":".join(self.seconds_to_str(np.std(time)))
@@ -175,14 +175,14 @@ class DataMethods:
             return sec
 
         if activities.shape[0] == 0:
-            return "ХЗ", "ХЗ"
+            return "?", "?"
 
         seconds = activities.apply(get_seconds, axis=1)
 
         time = seconds[seconds.between(60 * 60 * 5, 60 * 60 * 14)]
 
         if len(time) == 0:
-            return "ХЗ", "ХЗ"
+            return "?", "?"
 
 
         mean = ":".join(self.seconds_to_str(time.mean()))
