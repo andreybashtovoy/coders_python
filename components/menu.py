@@ -5,7 +5,8 @@ from data.ds import Data
 import xml.etree.ElementTree as ET
 import re
 from data.ds import Data
-
+from data.database import DB
+from datetime import datetime
 
 class Menu:
     def __init__(self, updater: Updater, file_url, command=None):
@@ -170,7 +171,13 @@ class Menu:
                 #if state == new_state:
                 #    prevent_edit = "&1"
 
+                url = None
+
+                if child.get('wayforpay_url') is not None:
+                    url = getattr(self, child.get('wayforpay_url'))(state.copy(), update)
+
                 return InlineKeyboardButton(child.attrib['name'],
+                                            url=url,
                                             callback_data="action&" + parent.get(
                                                 'id') + "&" + self.get_state_string(new_state) + "&" + child.get('id') + prevent_edit)
 
@@ -251,13 +258,29 @@ class Menu:
             ]
 
             plot = getattr(Data, elem.attrib['plot'])(state['user_id'])
+            caption = None
+
+            if elem.get('not_premium_image') is not None:
+                chat = DB.get_chat_by_id(update.effective_chat.id)
+
+                now = datetime.now()
+                expiration = datetime.strptime(chat['premium_expiration'], '%Y-%m-%d %H:%M:%S')
+
+                if now > expiration:
+                    plot = open(elem.get('not_premium_image'), 'rb')
+                    if elem.get("not_premium_text") is not None:
+                        caption = elem.get('not_premium_text').replace("\\n", "\n")
+                        caption = re.sub("  +", "", caption)
+
 
             reply_markup = InlineKeyboardMarkup(keyboard)
             context.bot.send_photo(
                 chat_id=update.effective_chat.id,
                 reply_to_message_id=update.callback_query.message.reply_to_message.message_id,
                 photo=plot,
-                reply_markup=reply_markup
+                reply_markup=reply_markup,
+                caption=caption,
+                parse_mode="Markdown"
             )
 
             update.callback_query.message.delete()

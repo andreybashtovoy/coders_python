@@ -1,5 +1,5 @@
 from components.menu import Menu
-from telegram import Update, ReplyKeyboardRemove
+from telegram import Update, ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import Updater, CommandHandler, CallbackContext
 from data.database import DB
 import datetime
@@ -25,12 +25,28 @@ class StartActivity(Menu):
         chat = DB.get_chat_by_id(update.effective_chat.id)
 
         if chat is None:
+            keyboard = [
+                [
+                    KeyboardButton(text="/help"),
+                    KeyboardButton(text="/start")
+                ]
+            ]
+
+            markup = ReplyKeyboardMarkup(
+                keyboard=keyboard,
+                one_time_keyboard=True,
+                resize_keyboard=True
+            )
+
             update.message.reply_text(
-                text="*Привет! Этот бот поможет узнать, как много времени вы уделяете разным занятиям, "
-                     "вести соответствующую статистику, контролировать все ваши занятия. "
-                     "Этим самым он поможет вам существенно улучшить вашу продуктивность.*\n\n"
-                     "📄 *Вся информация о функциях* - /help",
-                parse_mode="Markdown")
+                text="👋 *Привет!*\n\n"
+                     "Я помогу тебе контролировать все твои занятия в течении дня и "
+                     "существенно улучшить твою продуктивность.\n\n"
+                     "📄 *Как пользоваться ботом* - /help\n"
+                     "▶️ *Выбрать и начать занятие* - /start",
+                parse_mode="Markdown",
+                reply_markup=markup
+            )
         else:
             self.send(update, context)
 
@@ -165,7 +181,7 @@ class StartActivity(Menu):
                 string = "\n📂 *Проект:* _%s_" % project['name']
 
             update.callback_query.message.edit_text(
-                text="🧾 Ты начал занятие \"{}\".{}".format(name, string),
+                text="🧾 Ты начал занятие \"{}\".{}\n\n⏹ Остановить: /stop".format(name, string),
                 parse_mode="Markdown"
             )
 

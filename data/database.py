@@ -409,7 +409,7 @@ class DataBase:
 
     @with_connection
     def has_user_activities(self, user_id, cur):
-        cur.execute("SELECT COUNT(*) as count FROM activities WHERE user_id=%s;" % user_id)
+        cur.execute("SELECT COUNT(*) as count FROM activities WHERE duration!=0 AND user_id=%s;" % user_id)
         return cur.fetchone()['count'] != 0
 
     @with_connection
@@ -422,6 +422,14 @@ class DataBase:
                     "AND a.start_time < DATE('now', 'localtime')" % chat_id)
         return cur.fetchone()['count'] != 0
 
+    @with_connection
+    def get_purchase_by_reference(self, reference, cur):
+        cur.execute("SELECT * FROM purchases WHERE reference='%s'" % reference)
+        return cur.fetchone()
+
+    @with_connection
+    def add_purchase(self, reference, chat_id, vkh, cur):
+        cur.execute("INSERT INTO purchases(reference, chat_id, vkh) VALUES('%s', %s, '%s')" % (reference, chat_id, vkh))
 
 
 DB = DataBase()

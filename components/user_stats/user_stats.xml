@@ -6,13 +6,23 @@
                 За неделю: {week}\n
                 За месяц: {month}\n
                 За все время: {all}\n' format="main_menu_format" initial_state="initial_state" update_button="True">
-    <PlotButton name="🧩 График всех занятий по дням" plot="plot_all_time"/>
-    <PlotButton name="📅 График полезного времени по дням" plot="plot_time_with_benefit"/>
+    <PlotButton not_premium_image="components/user_stats/example.png"
+                not_premium_text="🌟 *Для доступа к этой функции подключите Premium*\n\n
+➡️ Подключить - /chat"
+                name="🧩 График всех занятий по дням"
+                plot="plot_all_time"/>
+    <PlotButton not_premium_image="components/user_stats/example1.png"
+                not_premium_text="🌟 *Для доступа к этой функции подключите Premium*\n\n
+➡️ Подключить - /chat" name="📅 График полезного времени по дням" plot="plot_time_with_benefit"/>
     <MenuButton name="🛌 Стастика сна" text='🛌 *Статистика сна пользователя* {username}\n\n
                 ⏱ Средняя продолжительность _{average_duration}_\n
                 🧿 Среднее время подъема: _{average_wake_up}_\n
                 💤 Среднее время начала сна: _{average_sleep_start}_' format="sleep_menu_format">
-        <PlotButton name="🧮 Распределение продолжительности сна" plot="plot_sleep_dist"/>
-        <PlotButton name="📊 Продолжительность сна по дням" plot="plot_sleep"/>
+        <PlotButton not_premium_image="components/user_stats/example2.png"
+                not_premium_text="🌟 *Для доступа к этой функции подключите Premium*\n\n
+➡️ Подключить - /chat" name="🧮 Распределение продолжительности сна" plot="plot_sleep_dist"/>
+        <PlotButton not_premium_image="components/user_stats/example3.png"
+                not_premium_text="🌟 *Для доступа к этой функции подключите Premium*\n\n
+➡️ Подключить - /chat" name="📊 Продолжительность сна по дням" plot="plot_sleep"/>
     </MenuButton>
 </MenuButton>

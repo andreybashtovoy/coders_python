@@ -97,6 +97,19 @@ class Activities(Menu):
             update.callback_query.answer(text="Меню было вызвано другим пользователем.", show_alert=True)
             return False
 
+        chat = DB.get_chat_by_id(update.effective_chat.id)
+
+        now = datetime.datetime.now()
+        expiration = datetime.datetime.strptime(chat['premium_expiration'], '%Y-%m-%d %H:%M:%S')
+
+        if expiration < now:
+            update.callback_query.message.edit_text(
+                text="🌟 *Для доступа к этой функции подключите Premium*\n\n"
+                     "➡️ Подключить - /chat",
+                parse_mode="Markdown"
+            )
+            return False
+
         update.callback_query.message.edit_text(
             text="🖍 *Напиши название занятия*",
             parse_mode="Markdown"

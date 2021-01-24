@@ -12,10 +12,13 @@ from components.projects.separate_project import SeparateProject
 from components.activities import Activities
 from components.activities.separate_activity import SeparateActivity
 from components.rating_graph import RatingGraph
+from components.chat import Chat
 from components.help import Help
 from components.days import Days
 from commands import CommandHandlers
 from scheduler import Scheduler
+
+import webserver
 
 warnings.filterwarnings('ignore')
 
@@ -48,7 +51,7 @@ if __name__ == "__main__":
     activities.append(separate_activity)
 
     menus = [UserStats(updater), RatingGraph(updater), Rating(updater), AddTime(updater),
-             selecting_activity, activities_obj, Days(updater), Help(updater)
+             selecting_activity, activities_obj, Days(updater), Help(updater), Chat(updater)
              ]
 
 
@@ -70,7 +73,7 @@ if __name__ == "__main__":
                 projects_of_activity.on_button_click(update, context)
                 return
 
-            if "🧩 Твои занятия" in update.callback_query.message.text:
+            if "🧩 Твои личные занятия" in update.callback_query.message.text:
                 activities[0].on_button_click(update, context)
                 return
 
