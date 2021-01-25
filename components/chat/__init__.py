@@ -87,7 +87,7 @@ class Chat(Menu):
             if chat['is_free']:
                 left = "\n\nДо конца пробного периода осталось %s дней." % days
             else:
-                left = "\n\nДо следующего платежа осталось %s дней." % days
+                left = "\n\nPremium активен ещё %s дней." % days
 
         return message_text.format(
             emodji="❌" if now > expiration else "🌟",
