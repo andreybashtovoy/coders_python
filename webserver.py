@@ -14,8 +14,10 @@ def hello():
     if request.method == 'POST':
         cur_time = int(time())
 
+        print(request.form.to_dict())
+
         obj = {
-            "orderReference": request.form['orderReference'],
+            "orderReference": request.form.to_dict()['orderReference'],
             "status": "accept",
             "time": cur_time
         }
