@@ -41,7 +41,8 @@ class Chat(Menu):
                 'productName': ['TimePlayer Premium'],
                 'productCount': [1],
                 'productPrice': [1],
-                'serviceUrl': 'http://34.89.218.42:7000/'
+                'serviceUrl': 'http://34.89.218.42:7000/',
+                'language': 'RU'
             }
 
             signature_string = ';'.join([myobj['merchantAccount'],

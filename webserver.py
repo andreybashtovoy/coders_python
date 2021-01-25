@@ -29,7 +29,7 @@ def hello():
             str(obj['time'])
         ])
 
-        obj['merchantSignature'] = hmac.new(SECRET_KEY,
+        obj['signature'] = hmac.new(SECRET_KEY,
                                             msg=signature_string.encode(),
                                             digestmod='MD5').hexdigest()
 
