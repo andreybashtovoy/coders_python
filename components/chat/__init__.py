@@ -44,7 +44,8 @@ class Chat(Menu):
                 'serviceUrl': 'http://34.89.218.42:7000/',
                 'language': 'RU',
                 'regularMode': 'monthly',
-                'regularOn': 1
+                'regularOn': 1,
+                'regularCount': 12
             }
 
             signature_string = ';'.join([myobj['merchantAccount'],
