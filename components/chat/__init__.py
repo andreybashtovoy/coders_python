@@ -42,7 +42,8 @@ class Chat(Menu):
                 'productCount': [1],
                 'productPrice': [1],
                 'serviceUrl': 'http://34.89.218.42:7000/',
-                'language': 'RU'
+                'language': 'RU',
+                'regularMode': 'monthly'
             }
 
             signature_string = ';'.join([myobj['merchantAccount'],

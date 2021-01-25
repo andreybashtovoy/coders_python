@@ -14,11 +14,11 @@ def hello():
     if request.method == 'POST':
         cur_time = int(time())
 
-        reference = json.loads(list(request.form.to_dict().keys())[0])['orderReference']
-        print(json.loads(list(request.form.to_dict().keys())[0]))
+        form = json.loads(list(request.form.to_dict().keys())[0])
+        print(form)
 
         obj = {
-            "orderReference": reference,
+            "orderReference": form['orderReference'],
             "status": "accept",
             "time": cur_time
         }
@@ -33,7 +33,8 @@ def hello():
                                             msg=signature_string.encode(),
                                             digestmod='MD5').hexdigest()
 
-        DB.confirm_purchase(obj["orderReference"])
+        if form['transactionStatus'] == "Approved":
+            DB.confirm_purchase(obj["orderReference"])
 
         return json.dumps(obj)
 
