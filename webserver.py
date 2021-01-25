@@ -14,12 +14,11 @@ def hello():
     if request.method == 'POST':
         cur_time = int(time())
 
-        print(request.values)
-        print(request.data)
-        print(request.form.values())
+        reference = json.loads(list(request.form.to_dict().keys())[0])['orderReference']
+        print(reference)
 
         obj = {
-            "orderReference": request.form.to_dict()['orderReference'],
+            "orderReference": reference,
             "status": "accept",
             "time": cur_time
         }
