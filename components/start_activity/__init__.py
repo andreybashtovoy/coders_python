@@ -44,14 +44,14 @@ class StartActivity(Menu):
                      "существенно улучшить твою продуктивность.\n\n"
                      "📄 *Как пользоваться ботом* - /help\n"
                      "▶️ *Выбрать и начать занятие* - /start",
-                parse_mode="Markdown",
-                reply_markup=markup
+                parse_mode="Markdown"
             )
 
             update.message.reply_text(
                 text="🌟 Поздравляю! Для этого чата было начислено *30 дней* бесплатного *Premium*.\n\n"
                      "_Узнать возможности Premium и продлить его можно в меню_ /chat",
-                parse_mode="Markdown"
+                parse_mode="Markdown",
+                reply_markup=markup
             )
         else:
             self.send(update, context)
