@@ -431,5 +431,11 @@ class DataBase:
     def add_purchase(self, reference, chat_id, vkh, cur):
         cur.execute("INSERT INTO purchases(reference, chat_id, vkh) VALUES('%s', %s, '%s')" % (reference, chat_id, vkh))
 
+    @with_connection
+    def confirm_purchase(self, reference, cur):
+        cur.execute("UPDATE chats SET premium_expiration=DATETIME(premium_expiration, '+1 month') "
+                    "WHERE chat_id=(SELECT chat_id FROM purchases WHERE reference='%s')" % reference)
+        cur.execute("UPDATE purchases SET paid=1 WHERE reference='%s'" % reference)
+
 
 DB = DataBase()

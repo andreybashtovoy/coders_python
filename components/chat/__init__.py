@@ -36,11 +36,12 @@ class Chat(Menu):
                 'merchantTransactionSecureType': 'AUTO',
                 'orderReference': state['order'],
                 'orderDate': date,
-                'amount': 50,
+                'amount': 1,
                 'currency': 'UAH',
                 'productName': ['TimePlayer Premium'],
                 'productCount': [1],
-                'productPrice': [50]
+                'productPrice': [1],
+                'serviceUrl': 'http://34.89.218.42:7000/'
             }
 
             signature_string = ';'.join([myobj['merchantAccount'],
