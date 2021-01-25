@@ -3,6 +3,7 @@ from time import time
 import hmac
 import json
 from data.database import DB
+from telegram.ext import Updater
 
 app = Flask(__name__)
 
@@ -35,6 +36,19 @@ def hello():
 
         if form['transactionStatus'] == "Approved":
             DB.confirm_purchase(obj["orderReference"])
+
+            purchase = DB.get_purchase_by_reference(obj["orderReference"])
+
+            f = open('bot_data.json')
+            json_object = json.load(f)
+
+            updater = Updater(json_object["token"])
+
+            updater.bot.send_message(
+                chat_id=purchase['chat_id'],
+                text="*Premium в этом чате был успешно продлен на месяц* 😊",
+                parse_mode="Markdown"
+            )
 
         return json.dumps(obj)
 

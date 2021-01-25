@@ -433,7 +433,9 @@ class DataBase:
 
     @with_connection
     def confirm_purchase(self, reference, cur):
-        cur.execute("UPDATE chats SET premium_expiration=DATETIME(premium_expiration, '+1 month') "
+        cur.execute("UPDATE chats SET premium_expiration=DATETIME('now', 'localtime', '+1 month') "
+                    "WHERE premium_expiration < DATETIME('now', 'localtime', '+1 month')")
+        cur.execute("UPDATE chats SET premium_expiration=DATETIME(premium_expiration, '+1 month'), is_free=0 "
                     "WHERE chat_id=(SELECT chat_id FROM purchases WHERE reference='%s')" % reference)
         cur.execute("UPDATE purchases SET paid=1 WHERE reference='%s'" % reference)
 
