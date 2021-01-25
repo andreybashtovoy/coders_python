@@ -15,7 +15,7 @@ def hello():
         cur_time = int(time())
 
         reference = json.loads(list(request.form.to_dict().keys())[0])['orderReference']
-        print(reference)
+        print(json.loads(list(request.form.to_dict().keys())[0]))
 
         obj = {
             "orderReference": reference,
