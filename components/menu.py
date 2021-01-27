@@ -120,21 +120,37 @@ class Menu:
             else:
 
                 if img is not None:
-                    update.callback_query.message.edit_media(
-                        InputMediaPhoto(
-                            media=img,
+                    if update.callback_query.message.text is None:
+                        update.callback_query.message.edit_media(
+                            InputMediaPhoto(
+                                media=img,
+                                caption=message_text,
+                                parse_mode="Markdown"
+                            ),
+                            reply_markup=InlineKeyboardMarkup(message_keyboard)
+                        )
+                    else:
+                        update.callback_query.message.reply_to_message.reply_photo(
                             caption=message_text,
-                            parse_mode="Markdown"
-                        ),
-                        reply_markup=InlineKeyboardMarkup(message_keyboard)
-                    )
+                            photo=img,
+                            parse_mode="Markdown",
+                            reply_markup=InlineKeyboardMarkup(message_keyboard),
+                            quote=True
+                        )
+                        update.callback_query.message.delete()
                 else:
-
-                    update.callback_query.edit_message_text(
-                        text=message_text,
-                        reply_markup=InlineKeyboardMarkup(message_keyboard),
-                        parse_mode="Markdown"
-                    )
+                    if update.callback_query.message.text is not None:
+                        update.callback_query.edit_message_text(
+                            text=message_text,
+                            reply_markup=InlineKeyboardMarkup(message_keyboard),
+                            parse_mode="Markdown"
+                        )
+                    else:
+                        update.callback_query.message.reply_to_message.reply_text(
+                            text=message_text,
+                            reply_markup=InlineKeyboardMarkup(message_keyboard),
+                            parse_mode="Markdown"
+                        )
 
         def get_button(child, parent, state, row_child=None):
             if child is None:
@@ -251,7 +267,7 @@ class Menu:
         elif elem.tag == "PlotButton":
             keyboard = [
                 [
-                    InlineKeyboardButton("◀️ Назад", callback_data="back_resend&" + self.root.find(
+                    InlineKeyboardButton("◀️ Назад", callback_data="go&" + self.root.find(
                         './/*[@id="{}"]...'.format(id)).get('id') + "&" +
                                                                    self.get_state_string(state))
                 ]
@@ -274,16 +290,18 @@ class Menu:
 
 
             reply_markup = InlineKeyboardMarkup(keyboard)
-            context.bot.send_photo(
-                chat_id=update.effective_chat.id,
-                reply_to_message_id=update.callback_query.message.reply_to_message.message_id,
-                photo=plot,
-                reply_markup=reply_markup,
-                caption=caption,
-                parse_mode="Markdown"
-            )
+            # context.bot.send_photo(
+            #     chat_id=update.effective_chat.id,
+            #     reply_to_message_id=update.callback_query.message.reply_to_message.message_id,
+            #     photo=plot,
+            #     reply_markup=reply_markup,
+            #     caption=caption,
+            #     parse_mode="Markdown"
+            # )
+            #
+            # update.callback_query.message.delete()
 
-            update.callback_query.message.delete()
+            send_message(caption, keyboard, plot)
 
     def on_button_click(self, update: Update, context: CallbackContext):
         query = update.callback_query
