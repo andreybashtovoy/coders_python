@@ -167,7 +167,6 @@ class DataBase:
     @with_connection
     def start_activity(self, user_id, name, duration, project_id, chat_id, cur):
         activity_names = self.get_user_accessible_activities(user_id, chat_id)
-        print(activity_names)
 
         activity_id = None
 
@@ -175,9 +174,6 @@ class DataBase:
             if obj['name'] == name:
                 activity_id = obj['id']
                 break
-
-        print("INSERT INTO activities(user_id, activity_id, project_id) VALUES(" + str(user_id) +
-                    ", " + str(activity_id) + ", " + (str(project_id) if project_id is not None else "NULL") + ");")
 
         cur.execute(
             "UPDATE activities SET duration=" + str(duration) + " WHERE duration=0 AND user_id=" + str(user_id) + ";")
@@ -438,6 +434,14 @@ class DataBase:
         cur.execute("UPDATE chats SET premium_expiration=DATETIME(premium_expiration, '+1 month'), is_free=0 "
                     "WHERE chat_id=(SELECT chat_id FROM purchases WHERE reference='%s')" % reference)
         cur.execute("UPDATE purchases SET paid=1 WHERE reference='%s'" % reference)
+
+    @with_connection
+    def reset_user_activities(self, user_id, cur):
+        cur.execute("UPDATE activities SET reset_user_id=user_id, user_id=NULL WHERE user_id = %s;" % user_id)
+
+    @with_connection
+    def restore_user_activities(self, user_id, cur):
+        cur.execute("UPDATE activities SET user_id=reset_user_id WHERE reset_user_id = %s;" % user_id)
 
 
 DB = DataBase()

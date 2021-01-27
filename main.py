@@ -15,6 +15,7 @@ from components.rating_graph import RatingGraph
 from components.chat import Chat
 from components.help import Help
 from components.days import Days
+from components.reset import Reset
 from commands import CommandHandlers
 from scheduler import Scheduler
 
@@ -51,7 +52,7 @@ if __name__ == "__main__":
     activities.append(separate_activity)
 
     menus = [UserStats(updater), RatingGraph(updater), Rating(updater), AddTime(updater),
-             selecting_activity, activities_obj, Days(updater), Help(updater), Chat(updater)
+             selecting_activity, activities_obj, Days(updater), Help(updater), Chat(updater), Reset(updater)
              ]
 
 

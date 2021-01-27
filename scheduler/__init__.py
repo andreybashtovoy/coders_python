@@ -15,7 +15,7 @@ class Scheduler:
         schedule.every().hour.at(":00").do(self.tag_active)
         schedule.every().day.at("23:55").do(self.tag_all)
 
-        # updater.dispatcher.add_handler(CommandHandler('test', self.tag_active))
+        updater.dispatcher.add_handler(CommandHandler('test', self.tag_active))
 
         x = threading.Thread(target=self.pending, args=(1,))
         x.start()
@@ -103,7 +103,7 @@ class Scheduler:
                     data_start = datetime.datetime.strptime(user['start_time'], '%Y-%m-%d %H:%M:%S')
                     duration = (date_now - data_start).seconds / 3600
 
-                    string = '🟢 У тебя активно занятие "*%s*" \(_%s_\)' % (user['name'],
+                    string = '🟢 У тебя активно занятие "*%s*" \(_%s_\)\n\n⏹ Остановить: /stop' % (user['name'],
                                                                           self.get_string_by_duration(duration))
                     try:
 

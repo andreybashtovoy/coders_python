@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<MenuButton text="🧩 В этом меню ты можешь сбросить все свои занятия или же восстановить их."
+            initial_state="initial_state">
+    <ActionButton name="🗑 Сбросить всё" callback="reset"/>
+    <ActionButton name="🔄 Восстановить всё" callback="restore"/>
+</MenuButton>
