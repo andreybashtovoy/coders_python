@@ -152,6 +152,7 @@ class Menu:
                             parse_mode="Markdown",
                             quote=True
                         )
+                        update.callback_query.message.delete()
 
         def get_button(child, parent, state, row_child=None):
             if child is None:
