@@ -149,7 +149,8 @@ class Menu:
                         update.callback_query.message.reply_to_message.reply_text(
                             text=message_text,
                             reply_markup=InlineKeyboardMarkup(message_keyboard),
-                            parse_mode="Markdown"
+                            parse_mode="Markdown",
+                            quote=True
                         )
 
         def get_button(child, parent, state, row_child=None):
