@@ -17,10 +17,10 @@ class AddTime(Menu):
 
         dur = "30"
 
-        print(temp[1])
+        #print(temp[1])
 
-        if len(temp) > 1 and temp[1].isdecimal():
-            dur = temp[1]
+        #if len(temp) > 1 and temp[1].isdecimal():
+        #    dur = temp[1]
 
         return {
             "u_id": update.message.from_user.id,
