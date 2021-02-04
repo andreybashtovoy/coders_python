@@ -89,20 +89,25 @@ class Menu:
             return text
 
         def send_message(message_text, message_keyboard, img=None):
+            if message_text is not None:
+                message_text = message_text.replace("(", "\(")
+                message_text = message_text.replace(")", "\)")
+                message_text = message_text.replace(".", "\.")
+                message_text = message_text.replace("-", "\-")
 
             if send:
                 if img is not None:
                     update.message.reply_photo(
                         caption=message_text,
                         photo=img,
-                        parse_mode="Markdown",
+                        parse_mode="MarkdownV2",
                         reply_markup=InlineKeyboardMarkup(message_keyboard),
                         quote=True
                     )
                 else:
                     update.message.reply_text(
                         text=message_text,
-                        parse_mode="Markdown",
+                        parse_mode="MarkdownV2",
                         reply_markup=InlineKeyboardMarkup(message_keyboard),
                         quote=True
                     )
@@ -113,7 +118,7 @@ class Menu:
                     reply_to_message_id=update.callback_query.message.reply_to_message.message_id,
                     text=message_text,
                     reply_markup=InlineKeyboardMarkup(message_keyboard),
-                    parse_mode="Markdown"
+                    parse_mode="MarkdownV2"
                 )
 
                 update.callback_query.message.delete()
@@ -125,7 +130,7 @@ class Menu:
                             InputMediaPhoto(
                                 media=img,
                                 caption=message_text,
-                                parse_mode="Markdown"
+                                parse_mode="MarkdownV2"
                             ),
                             reply_markup=InlineKeyboardMarkup(message_keyboard)
                         )
@@ -133,7 +138,7 @@ class Menu:
                         update.callback_query.message.reply_to_message.reply_photo(
                             caption=message_text,
                             photo=img,
-                            parse_mode="Markdown",
+                            parse_mode="MarkdownV2",
                             reply_markup=InlineKeyboardMarkup(message_keyboard),
                             quote=True
                         )
@@ -143,13 +148,13 @@ class Menu:
                         update.callback_query.edit_message_text(
                             text=message_text,
                             reply_markup=InlineKeyboardMarkup(message_keyboard),
-                            parse_mode="Markdown"
+                            parse_mode="MarkdownV2"
                         )
                     else:
                         update.callback_query.message.reply_to_message.reply_text(
                             text=message_text,
                             reply_markup=InlineKeyboardMarkup(message_keyboard),
-                            parse_mode="Markdown",
+                            parse_mode="MarkdownV2",
                             quote=True
                         )
                         update.callback_query.message.delete()

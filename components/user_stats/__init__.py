@@ -43,7 +43,7 @@ class UserStats(Menu):
         active_task = DB.get_active_task_user(user['user_id'])
         task_icon = "🟢" if active_task['active'] else "🔴"
 
-        return message_text.format(username=user['username'].replace("_", " "),
+        return message_text.format(username=user['username'].replace("_", "\_"),
                                    task_icon=task_icon,
                                    active_task=active_task['name'],
                                    task_time=active_task['time'],

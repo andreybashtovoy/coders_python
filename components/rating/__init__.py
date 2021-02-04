@@ -41,7 +41,7 @@ class Rating(Menu):
                     seconds = floor((((duration % 1) * 60) % 1) * 60)
 
                     string = string + "{} *{}* _{} часов {} минут {} секунд_\n".format(task_icon,
-                                                                                     obj['username'].replace("_", " "),
+                                                                                     obj['username'].replace("_", "\_"),
                                                                                      hours, minutes, seconds
                                                                                      )
 
