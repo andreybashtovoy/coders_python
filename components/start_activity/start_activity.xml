@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<MenuButton text="⬇️ *Выбери занятие, которое хочешь начать*" initial_state="initial_state">
+<MenuButton text="⬇️ *Выбери занятие, которое хочешь начать*{}" format="main_message_format" initial_state="initial_state">
     <CustomButtons init="get_activity_buttons"/>
     <Row>
         <ActionButton name="⬅️" action="prev_page" is_hidden="is_prev_hidden"/>

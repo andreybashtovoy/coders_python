@@ -15,11 +15,29 @@ class StartActivity(Menu):
         updater.dispatcher.add_handler(CommandHandler('start', self.start))
 
     def initial_state(self, update: Update):
+        temp = update.message.text.split(" ")
+
+        dur = "0"
+
+        if len(temp) > 1 and temp[1].isdigit():
+            dur = temp[1]
+
         return {
             "u_id": update.message.from_user.id,
             "page": "1",
-            "a": "0"
+            "a": "0",
+            "dur": dur
         }
+
+    def main_message_format(self, message_text, update: Update, state):
+        delay = ""
+
+        if int(state['dur']) != 0:
+            delay = "\n\n\+%s минут" % state['dur']
+
+        return message_text.format(
+            delay
+        )
 
     def start(self, update: Update, context: CallbackContext):
         chat = DB.get_chat_by_id(update.effective_chat.id)
@@ -143,7 +161,7 @@ class StartActivity(Menu):
         else:
             self.start_activity(update.message.from_user.id, "Ничего", update, edit=False)
 
-    def start_activity(self, user_id, name, update: Update, penalty=0, edit=True):
+    def start_activity(self, user_id, name, update: Update, penalty=0, edit=True, delay=0):
         active_activity = DB.get_active_activity(user_id)
 
         stopped_activity = None
@@ -161,9 +179,9 @@ class StartActivity(Menu):
         project = DB.get_active_project(user_id, name)
 
         if project is not None:
-            DB.start_activity(user_id, name, duration, project['id'], update.effective_chat.id)
+            DB.start_activity(user_id, name, duration, project['id'], update.effective_chat.id, delay)
         else:
-            DB.start_activity(user_id, name, duration, None, update.effective_chat.id)
+            DB.start_activity(user_id, name, duration, None, update.effective_chat.id, delay)
 
         if stopped_activity is not None and stopped_activity['activity_id'] != 0:
             if edit:
@@ -197,7 +215,7 @@ class StartActivity(Menu):
 
         name = DB.get_activity_by_id(int(state['a']))['name']
 
-        self.start_activity(state['u_id'], name, update)
+        self.start_activity(state['u_id'], name, update, delay=int(state['dur']))
 
         return False
 

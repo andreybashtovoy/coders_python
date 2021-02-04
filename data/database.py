@@ -165,7 +165,7 @@ class DataBase:
         return cur.fetchone()
 
     @with_connection
-    def start_activity(self, user_id, name, duration, project_id, chat_id, cur):
+    def start_activity(self, user_id, name, duration, project_id, chat_id, delay, cur):
         activity_names = self.get_user_accessible_activities(user_id, chat_id)
 
         activity_id = None
@@ -177,8 +177,8 @@ class DataBase:
 
         cur.execute(
             "UPDATE activities SET duration=" + str(duration) + " WHERE duration=0 AND user_id=" + str(user_id) + ";")
-        cur.execute("INSERT INTO activities(user_id, activity_id, project_id) VALUES(" + str(user_id) +
-                    ", " + str(activity_id) + ", " + (str(project_id) if project_id is not None else "NULL") + ");")
+        cur.execute("INSERT INTO activities(user_id, activity_id, project_id, start_time) VALUES(" + str(user_id) +
+                    ", " + str(activity_id) + ", " + (str(project_id) if project_id is not None else "NULL") + ", DATETIME('now','localtime','-"+ str(delay) +" minutes'));")
 
     @with_connection
     def get_activity_by_name(self, name, cur):
@@ -199,8 +199,9 @@ class DataBase:
 
     @with_connection
     def add_activity(self, user_id, activity_id, duration, project_id, cur):
-        cur.execute("INSERT INTO activities(user_id, activity_id, duration, project_id) VALUES(" + str(user_id) + ","
-                    + str(activity_id) + "," + str(duration) + ", " + (str(project_id) if project_id is not None else "NULL") + " );")
+        cur.execute("INSERT INTO activities(user_id, activity_id, duration, project_id, start_time) VALUES(" + str(user_id) + ","
+                    + str(activity_id) + "," + str(duration) + ", " + (str(project_id) if project_id is not None else "NULL") +
+                    ", DATETIME('now','localtime','-" + str(duration) + " hours') );")
 
     @with_connection
     def get_active_users(self, cur):
