@@ -173,21 +173,21 @@ class StartActivity(Menu):
 
             func(
                 text="✅ Занятие завершено ({})\n\n⏱ Продолжительность: {}.".format(
-                    stopped_activity['name'],
+                    stopped_activity['name'].replace("_", "\_"),
                     self.get_string_by_duration(stopped_activity['duration'])
                 ),
-                parse_mode="Markdown"
+                parse_mode="MarkdownV2"
             )
 
         if name != "Ничего":
             string = ""
 
             if project is not None:
-                string = "\n📂 *Проект:* _%s_" % project['name']
+                string = "\n📂 *Проект:* _%s_" % project['name'].replace("_", "\_")
 
             update.callback_query.message.edit_text(
-                text="🧾 Ты начал занятие \"{}\".{}\n\n⏹ Остановить: /stop".format(name, string),
-                parse_mode="Markdown"
+                text="🧾 Ты начал занятие \"{}\".{}\n\n⏹ Остановить: /stop".format(name.replace("_", "\_"), string),
+                parse_mode="MarkdownV2"
             )
 
     def action_custom_callback(self, update: Update, state):

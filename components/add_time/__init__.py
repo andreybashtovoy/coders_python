@@ -13,11 +13,20 @@ class AddTime(Menu):
         super().__init__(updater, 'components/add_time/add_time.xml', 'add')
 
     def initial_state(self, update: Update):
+        temp = update.message.text.split(" ")
+
+        dur = "30"
+
+        print(temp[1])
+
+        if len(temp) > 1 and temp[1].isdecimal():
+            dur = temp[1]
+
         return {
             "u_id": update.message.from_user.id,
             "a": "0",
             "p": "1",
-            "dur": "30"
+            "dur": dur
         }
 
     def get_string_by_duration(self, duration):
@@ -164,16 +173,16 @@ class AddTime(Menu):
         string = ""
 
         if project is not None:
-            string = "\n📂 *Проект:* _%s_" % project['name']
+            string = "\n📂 *Проект:* _%s_" % project['name'].replace("_", "\_")
 
 
         update.callback_query.edit_message_text(
             text="✅ Ты добавил _{}_ к занятию *{}*.\n{}".format(
                 self.get_string_by_duration(int(state['dur'])),
-                DB.get_activity_by_id(int(state['a']))['name'],
+                DB.get_activity_by_id(int(state['a']))['name'].replace("_", "\_"),
                 string
             ),
-            parse_mode="Markdown"
+            parse_mode="MarkdownV2"
         )
 
         return False
