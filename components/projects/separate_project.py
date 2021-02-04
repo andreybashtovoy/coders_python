@@ -26,7 +26,7 @@ class SeparateProject(Menu):
         is_active = bool(project['active'])
 
         return message_text.format(
-            project_name=project['name'],
+            project_name=project['name'].replace("_","\_"),
             activity_name=DB.get_activity_by_id(state['a'])['name'],
             time=time,
             status="🟢 *Проект активен*" if is_active else "🔴 *Проект не активен*"

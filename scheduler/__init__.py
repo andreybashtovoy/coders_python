@@ -191,3 +191,32 @@ class Scheduler:
 
                 except Exception as e:
                     print(e.message)
+            else:
+                pass
+                # obj = DB.get_today_user_useful_time(users[0]['user_id'])
+                #
+                # now = datetime.datetime.now()
+                #
+                # if obj['time'] is not None:
+                #     duration = float(obj['time'])
+                #
+                #     if obj['start_time'] is not None:
+                #         data_start = datetime.datetime.strptime(obj['start_time'], '%Y-%m-%d %H:%M:%S')
+                #
+                #         diff = (now - data_start).seconds / 3600
+                #         duration = duration + diff
+                # else:
+                #     duration = 0
+                #
+                # string = ""
+                #
+                # try:
+                #
+                #     self.updater.bot.send_message(
+                #         chat_id=chat['chat_id'],
+                #         text=string,
+                #         parse_mode="MarkdownV2"
+                #     )
+                #
+                # except Exception as e:
+                #     print(e.message)
