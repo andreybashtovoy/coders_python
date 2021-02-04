@@ -186,7 +186,7 @@ class StartActivity(Menu):
                 string = "\n📂 *Проект:* _%s_" % project['name'].replace("_", "\_")
 
             update.callback_query.message.edit_text(
-                text="🧾 Ты начал занятие \"{}\".{}\n\n⏹ Остановить: /stop".format(name.replace("_", "\_"), string),
+                text="🧾 Ты начал занятие \"{}\"\.{}\n\n⏹ Остановить: /stop".format(name.replace("_", "\_"), string),
                 parse_mode="MarkdownV2"
             )
 
