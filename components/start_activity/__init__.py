@@ -172,7 +172,7 @@ class StartActivity(Menu):
                 func = update.message.reply_text
 
             func(
-                text="✅ Занятие завершено ({})\n\n⏱ Продолжительность: {}.".format(
+                text="✅ Занятие завершено \({}\)\n\n⏱ Продолжительность: {}.".format(
                     stopped_activity['name'].replace("_", "\_"),
                     self.get_string_by_duration(stopped_activity['duration'])
                 ),
