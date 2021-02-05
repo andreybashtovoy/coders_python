@@ -201,7 +201,7 @@ class DataBase:
     def add_activity(self, user_id, activity_id, duration, project_id, cur):
         cur.execute("INSERT INTO activities(user_id, activity_id, duration, project_id, start_time) VALUES(" + str(user_id) + ","
                     + str(activity_id) + "," + str(duration) + ", " + (str(project_id) if project_id is not None else "NULL") +
-                    ", DATETIME('now','localtime','-" + str(duration) + " hours') );")
+                    ", DATETIME('now','localtime','-" + str(duration if duration > 0 else 0) + " hours') );")
 
     @with_connection
     def get_active_users(self, cur):

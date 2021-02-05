@@ -176,7 +176,7 @@ class AddTime(Menu):
 
         update.callback_query.edit_message_text(
             text="✅ Ты добавил _{}_ к занятию *{}*\.\n{}".format(
-                self.get_string_by_duration(int(state['dur'])),
+                self.get_string_by_duration(int(state['dur'])).replace("-", "\-"),
                 DB.get_activity_by_id(int(state['a']))['name'].replace("_", "\_"),
                 string
             ),
