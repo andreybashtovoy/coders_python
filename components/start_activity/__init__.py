@@ -201,7 +201,13 @@ class StartActivity(Menu):
             string = ""
 
             if project is not None:
-                string = "\n📂 *Проект:* _%s_" % project['name'].replace("_", "\_")
+                name = project['name'].replace("_", "\_")
+                name = name.replace("(", "\(")
+                name = name.replace(")", "\)")
+                name = name.replace(".", "\.")
+                name = name.replace("-", "\-")
+
+                string = "\n📂 *Проект:* _%s_" % name
 
             update.callback_query.message.edit_text(
                 text="🧾 Ты начал занятие \"{}\"\.{}\n\n⏹ Остановить: /stop".format(name.replace("_", "\_"), string),

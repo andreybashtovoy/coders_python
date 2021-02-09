@@ -171,7 +171,13 @@ class AddTime(Menu):
         string = ""
 
         if project is not None:
-            string = "\n📂 *Проект:* _%s_" % project['name'].replace("_", "\_")
+            name = project['name'].replace("_", "\_")
+            name = name.replace("(", "\(")
+            name = name.replace(")", "\)")
+            name = name.replace(".", "\.")
+            name = name.replace("-", "\-")
+
+            string = "\n📂 *Проект:* _%s_" % name
 
 
         update.callback_query.edit_message_text(
