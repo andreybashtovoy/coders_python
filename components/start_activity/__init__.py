@@ -189,9 +189,15 @@ class StartActivity(Menu):
             else:
                 func = update.message.reply_text
 
+            ac_name = stopped_activity['name'].replace("_", "\_")
+            ac_name = ac_name.replace("(", "\(")
+            ac_name = ac_name.replace(")", "\)")
+            ac_name = ac_name.replace("-", "\-")
+            ac_name = ac_name.replace(".", "\.")
+
             func(
                 text="✅ Занятие завершено \({}\)\n\n⏱ Продолжительность: {}\.".format(
-                    stopped_activity['name'].replace("_", "\_"),
+                    ac_name,
                     self.get_string_by_duration(stopped_activity['duration'])
                 ),
                 parse_mode="MarkdownV2"
@@ -201,16 +207,22 @@ class StartActivity(Menu):
             string = ""
 
             if project is not None:
-                name = project['name'].replace("_", "\_")
-                name = name.replace("(", "\(")
-                name = name.replace(")", "\)")
-                name = name.replace(".", "\.")
-                name = name.replace("-", "\-")
+                pr_name = project['name'].replace("_", "\_")
+                pr_name = pr_name.replace("(", "\(")
+                pr_name = pr_name.replace(")", "\)")
+                pr_name = pr_name.replace(".", "\.")
+                pr_name = pr_name.replace("-", "\-")
 
-                string = "\n📂 *Проект:* _%s_" % name
+                string = "\n📂 *Проект:* _%s_" % pr_name
+
+            ac_name = name.replace("_", "\_")
+            ac_name = ac_name.replace("(", "\(")
+            ac_name = ac_name.replace(")", "\)")
+            ac_name = ac_name.replace("-", "\-")
+            ac_name = ac_name.replace(".", "\.")
 
             update.callback_query.message.edit_text(
-                text="🧾 Ты начал занятие \"{}\"\.{}\n\n⏹ Остановить: /stop".format(name.replace("_", "\_"), string),
+                text="🧾 Ты начал занятие \"{}\"\.{}\n\n⏹ Остановить: /stop".format(ac_name, string),
                 parse_mode="MarkdownV2"
             )
 
