@@ -35,7 +35,13 @@ class Days(Menu):
         for activity in day_activities:
             project_str = ""
             if activity['project_name'] is not None:
-                project_str = "(%s)" % activity['project_name']
+                pr_name = activity['project_name'].replace("_", "\_")
+                pr_name = pr_name.replace("(", "\(")
+                pr_name = pr_name.replace(")", "\)")
+                pr_name = pr_name.replace(".", "\.")
+                pr_name = pr_name.replace("-", "\-")
+
+                project_str = "(%s)" % pr_name
 
             duration = activity['sum']
 
@@ -46,8 +52,14 @@ class Days(Menu):
             if activity['challenge']:
                 sum_duration += duration
 
+            ac_name = activity['activity_name'].replace("_", "\_")
+            ac_name = ac_name.replace("(", "\(")
+            ac_name = ac_name.replace(")", "\)")
+            ac_name = ac_name.replace("-", "\-")
+            ac_name = ac_name.replace(".", "\.")
+
             string += "*%s*: _%s_ %s\n" %\
-                      (activity['activity_name'], self.get_string_by_duration(duration), project_str)
+                      (ac_name, self.get_string_by_duration(duration), project_str)
 
         return message_text.format(
             day=day.strftime('%d.%m.%Y'),
