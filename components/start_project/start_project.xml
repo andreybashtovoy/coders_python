@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<MenuButton text="⬇️ *Выбери проект, который хочешь начать*{}" format="main_message_format" initial_state="initial_state">
+    <CustomButtons init="get_project_buttons"/>
+    <Row>
+        <ActionButton name="⬅️" action="prev_page" is_hidden="is_prev_hidden"/>
+        <ActionButton name="➡️" action="next_page" is_hidden="is_next_hidden"/>
+    </Row>
+    <ActionButton name="✖️ Отмена" callback="cancel"/>
+</MenuButton>

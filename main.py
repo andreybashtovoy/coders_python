@@ -16,6 +16,7 @@ from components.chat import Chat
 from components.help import Help
 from components.days import Days
 from components.reset import Reset
+from components.start_project import StartProject
 from commands import CommandHandlers
 from scheduler import Scheduler
 
@@ -43,6 +44,7 @@ if __name__ == "__main__":
     projects.append(selecting_activity)
 
     start_activity = StartActivity(updater)
+    start_project = StartProject(updater, start_activity)
 
     activities = []
 
@@ -52,7 +54,8 @@ if __name__ == "__main__":
     activities.append(separate_activity)
 
     menus = [UserStats(updater), RatingGraph(updater), Rating(updater), AddTime(updater),
-             selecting_activity, activities_obj, Days(updater), Help(updater), Chat(updater), Reset(updater)
+             selecting_activity, activities_obj, Days(updater), Help(updater), Chat(updater), Reset(updater),
+             start_project
              ]
 
 
@@ -77,6 +80,10 @@ if __name__ == "__main__":
             if "🧩 Твои личные занятия" in update.callback_query.message.text:
                 activities[0].on_button_click(update, context)
                 return
+
+        if update.callback_query.message.reply_to_message.text.startswith("/start_project"):
+            start_project.on_button_click(update, context)
+            return
 
         if update.callback_query.message.reply_to_message.text.startswith("/start"):
             start_activity.on_button_click(update, context)

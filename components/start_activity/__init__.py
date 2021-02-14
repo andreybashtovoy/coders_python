@@ -161,7 +161,7 @@ class StartActivity(Menu):
         else:
             self.start_activity(update.message.from_user.id, "Ничего", update, edit=False)
 
-    def start_activity(self, user_id, name, update: Update, penalty=0, edit=True, delay=0):
+    def start_activity(self, user_id, name, update: Update, penalty=0, edit=True, delay=0, project=None):
         active_activity = DB.get_active_activity(user_id)
 
         stopped_activity = None
@@ -176,7 +176,8 @@ class StartActivity(Menu):
             stopped_activity = active_activity
             stopped_activity['duration'] = duration
 
-        project = DB.get_active_project(user_id, name)
+        if project is None:
+            project = DB.get_active_project(user_id, name)
 
         if project is not None:
             DB.start_activity(user_id, name, duration, project['id'], update.effective_chat.id, delay)
@@ -221,8 +222,13 @@ class StartActivity(Menu):
             ac_name = ac_name.replace("-", "\-")
             ac_name = ac_name.replace(".", "\.")
 
+            delay_str = ""
+
+            if delay > 0:
+                delay_str = "\n\n⏱ \+10 мин\."
+
             update.callback_query.message.edit_text(
-                text="🧾 Ты начал занятие \"{}\"\.{}\n\n⏹ Остановить: /stop".format(ac_name, string),
+                text="🧾 Ты начал занятие \"{}\"\.{}{}\n\n⏹ Остановить: /stop".format(ac_name, string, delay_str),
                 parse_mode="MarkdownV2"
             )
 

@@ -444,5 +444,22 @@ class DataBase:
     def restore_user_activities(self, user_id, cur):
         cur.execute("UPDATE activities SET user_id=reset_user_id WHERE reset_user_id = %s;" % user_id)
 
+    @with_connection
+    def get_user_projects(self, user_id, cur):
+        cur.execute("SELECT * FROM projects WHERE user_id=%s" % user_id)
+        return cur.fetchall()
+
+    @with_connection
+    def get_last_projects(self, user_id, cur):
+        cur.execute("SELECT DISTINCT p.id, p.name FROM activities a "
+                    "JOIN projects p on p.id = a.project_id "
+                    "WHERE a.user_id=%s ORDER BY a.id DESC" % user_id)
+        return cur.fetchall()
+
+    @with_connection
+    def get_activity_by_project_id(self, project_id, cur):
+        cur.execute("SELECT * FROM activity_names "
+                    "WHERE id=(SELECT activity_id FROM projects WHERE id=%s)" % project_id)
+        return cur.fetchone()
 
 DB = DataBase()

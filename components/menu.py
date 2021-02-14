@@ -67,6 +67,8 @@ class Menu:
             return getattr(self, "check")(update, state)
         elif elem_id == "custom":
             return getattr(self, "action_custom_callback")(update, state)
+        elif elem_id.startswith("_"):
+            return getattr(self, "action_custom_callback")(update, state, elem_id[1:])
 
         elem = self.root.find('.//*[@id="{}"]'.format(elem_id))
         if elem.get('callback') is not None:
@@ -166,8 +168,11 @@ class Menu:
                 else:
                     new_state = state
 
-                if 'callback' in row_child and row_child['callback']:
-                    callback = 'custom'
+                if 'callback' in row_child:
+                    if row_child['callback'] == True:
+                        callback = 'custom'
+                    else:
+                        callback = '_' + str(row_child['callback'])
                 else:
                     callback = 'c'
 
