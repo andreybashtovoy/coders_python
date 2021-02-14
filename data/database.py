@@ -311,8 +311,13 @@ class DataBase:
         else:
             cur.execute("UPDATE users SET username='%s' WHERE user_id=%d" % (user.username, user.id))
 
-        cur.execute("REPLACE INTO chats(chat_id, name) VALUES (%d, '%s')" %
+        chat_obj = DB.get_chat_by_id(chat.id)
+
+        if chat_obj is None:
+            cur.execute("INSERT INTO chats(chat_id, name) VALUES (%d, '%s')" %
                     (chat.id, chat.title if chat.title is not None else chat.username))
+        else:
+            cur.execute("UPDATE chats SET name='%s' WHERE chat_id=%s" % (chat.title if chat.title is not None else chat.username, chat.id))
 
         cur.execute("REPLACE INTO users_chats(chat_id, user_id) VALUES (%d, %d)" % (chat.id, user.id))
 
