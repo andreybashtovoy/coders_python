@@ -53,10 +53,10 @@ class Days(Menu):
                 sum_duration += duration
 
             ac_name = activity['activity_name'].replace("_", "\_")
-            ac_name = ac_name.replace("(", "\(")
-            ac_name = ac_name.replace(")", "\)")
-            ac_name = ac_name.replace("-", "\-")
-            ac_name = ac_name.replace(".", "\.")
+            # ac_name = ac_name.replace("(", "\(")
+            # ac_name = ac_name.replace(")", "\)")
+            # ac_name = ac_name.replace("-", "\-")
+            # ac_name = ac_name.replace(".", "\.")
 
             string += "*%s*: _%s_ %s\n" %\
                       (ac_name, self.get_string_by_duration(duration), project_str)
