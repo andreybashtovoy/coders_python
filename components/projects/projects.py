@@ -57,7 +57,7 @@ class ProjectsOfActivity(Menu):
 
         i = self.IN_PAGE * (int(state['page']) - 1)
 
-        return get_keyboard_by_names(names[i:i + 3])
+        return get_keyboard_by_names(names[i:i + self.IN_PAGE])
 
     def next_page(self, state, update: Update):
         state['page'] = int(state['page']) + 1

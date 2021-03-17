@@ -225,7 +225,7 @@ class StartActivity(Menu):
             delay_str = ""
 
             if delay > 0:
-                delay_str = "\n\n⏱ \+10 мин\."
+                delay_str = "\n\n⏱ \+%s мин\." % delay
 
             update.callback_query.message.edit_text(
                 text="🧾 Ты начал занятие \"{}\"\.{}{}\n\n⏹ Остановить: /stop".format(ac_name, string, delay_str),
