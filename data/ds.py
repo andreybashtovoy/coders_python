@@ -393,8 +393,8 @@ class DataMethods:
 
         max_time = round(max(days)) if round(max(days)) > 5 else 5
 
-        if max_time > 10:
-            max_time = 10
+        if max_time > 7:
+            max_time = 7
 
         fig, ax = plt.subplots(1, 1, figsize=(6, 2))
         fig.subplots_adjust(left=0.1, right=1.05, bottom=0.13, top=0.95)
