@@ -40,6 +40,22 @@ class StartActivity(Menu):
         )
 
     def start(self, update: Update, context: CallbackContext):
+
+        temp = update.message.text.split(" ")
+
+        if len(temp) > 1 and not temp[1].isdigit():
+            activity = DB.get_user_activity_by_query(update.effective_user.id, update.effective_chat.id, temp[1])
+            if activity is not None:
+                activity_name = activity['name']
+
+                self.start_activity(
+                    update.effective_user.id,
+                    activity_name,
+                    update,
+                    edit=False
+                )
+                return
+
         chat = DB.get_chat_by_id(update.effective_chat.id)
 
         if chat is None:
@@ -185,7 +201,7 @@ class StartActivity(Menu):
             DB.start_activity(user_id, name, duration, None, update.effective_chat.id, delay)
 
         if stopped_activity is not None and stopped_activity['activity_id'] != 0:
-            if edit:
+            if edit and update:
                 func = update.callback_query.message.reply_to_message.reply_text
             else:
                 func = update.message.reply_text
@@ -196,9 +212,23 @@ class StartActivity(Menu):
             ac_name = ac_name.replace("-", "\-")
             ac_name = ac_name.replace(".", "\.")
 
+            project_string = ""
+
+            if stopped_activity['project_id'] is not None:
+                stopped_project = DB.get_project_by_id(stopped_activity['project_id'])
+
+                pr_name = stopped_project['name'].replace("_", "\_")
+                pr_name = pr_name.replace("(", "\(")
+                pr_name = pr_name.replace(")", "\)")
+                pr_name = pr_name.replace(".", "\.")
+                pr_name = pr_name.replace("-", "\-")
+
+                project_string = "📂 *Проект:* _%s_\n" % pr_name
+
             func(
-                text="✅ Занятие завершено \({}\)\n\n⏱ Продолжительность: {}\.".format(
+                text="✅ Занятие завершено \({}\)\n{}\n⏱ Продолжительность: {}\.".format(
                     ac_name,
+                    project_string,
                     self.get_string_by_duration(stopped_activity['duration'])
                 ),
                 parse_mode="MarkdownV2"
@@ -227,10 +257,18 @@ class StartActivity(Menu):
             if delay > 0:
                 delay_str = "\n\n⏱ \+%s мин\." % delay
 
-            update.callback_query.message.edit_text(
-                text="🧾 Ты начал занятие \"{}\"\.{}{}\n\n⏹ Остановить: /stop".format(ac_name, string, delay_str),
-                parse_mode="MarkdownV2"
-            )
+            text = "🧾 Ты начал занятие \"{}\"\.{}{}\n\n⏹ Остановить: /stop".format(ac_name, string, delay_str)
+
+            if update.callback_query is not None:
+                update.callback_query.message.edit_text(
+                    text=text,
+                    parse_mode="MarkdownV2"
+                )
+            else:
+                update.effective_message.reply_text(
+                    text=text,
+                    parse_mode="MarkdownV2"
+                )
 
     def action_custom_callback(self, update: Update, state):
         if update.callback_query is not None and update.callback_query.from_user.id != int(state['u_id']):

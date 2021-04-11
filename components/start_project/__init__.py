@@ -39,6 +39,23 @@ class StartProject(Menu):
         )
 
     def start(self, update: Update, context: CallbackContext):
+
+        temp = update.message.text.split(" ")
+
+        if len(temp) > 1 and not temp[1].isdigit():
+            project = DB.get_user_project_by_query(update.effective_user.id, temp[1])
+            if project is not None:
+                activity_name = DB.get_activity_by_id(project['activity_id'])['name']
+
+                self.start_activity.start_activity(
+                    update.effective_user.id,
+                    activity_name,
+                    update,
+                    edit=False,
+                    project=project
+                )
+                return
+
         self.send(update, context)
 
         DB.update_user_and_chat(update.message.from_user, update.effective_chat)
