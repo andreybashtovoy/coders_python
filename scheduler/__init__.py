@@ -37,6 +37,9 @@ class Scheduler:
 
         for chat in chats:
 
+            if chat['chat_id'] in [-1001243947001]:
+                continue
+
             active_users = DB.get_chat_active_users(chat['chat_id'])
 
             if len(active_users) > 0:
