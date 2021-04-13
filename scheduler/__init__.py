@@ -78,7 +78,13 @@ class Scheduler:
                             else:
                                 break
 
-                        string += "🔸{} \[`{}`\] \- *{}* \(_{}_\)\n".format(username, rank, user['name'],
+                        activity_name = user['name'].replace("_", "\_")
+                        activity_name = activity_name.replace("(", "\(")
+                        activity_name = activity_name.replace(")", "\)")
+                        activity_name = activity_name.replace("-", "\-")
+                        activity_name = activity_name.replace(".", "\.")
+
+                        string += "🔸{} \[`{}`\] \- *{}* \(_{}_\)\n".format(username, rank, activity_name,
                                                                             self.get_string_by_duration(duration))
 
                     string += "\n`Выключить/включить теги \- ` /toggle\_tag"
