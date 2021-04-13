@@ -102,7 +102,7 @@ class Activities(Menu):
         now = datetime.datetime.now()
         expiration = datetime.datetime.strptime(chat['premium_expiration'], '%Y-%m-%d %H:%M:%S')
 
-        if expiration < now:
+        if False and expiration < now:
             update.callback_query.message.edit_text(
                 text="🌟 *Для доступа к этой функции подключите Premium*\n\n"
                      "➡️ Подключить - /chat",

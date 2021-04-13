@@ -90,7 +90,8 @@ if __name__ == "__main__":
             return
 
         if update.callback_query.message.reply_to_message.text.startswith("/start") or \
-                update.callback_query.message.reply_to_message.text.startswith("/s"):
+                update.callback_query.message.reply_to_message.text.startswith(
+                    "/s ") or update.callback_query.message.reply_to_message.text == "/s":
             start_activity.on_button_click(update, context)
             return
 

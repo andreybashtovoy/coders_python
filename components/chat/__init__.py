@@ -14,7 +14,7 @@ import json
 
 class Chat(Menu):
     def __init__(self, updater: Updater):
-        super().__init__(updater, 'components/chat/chat.xml', 'chat')
+        super().__init__(updater, 'components/chat/chat.xml', 'chat_')
 
     def initial_state(self, update: Update):
         order = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
