@@ -471,16 +471,24 @@ class DataBase:
     def get_user_project_by_query(self, user_id, query, cur):
         cur.execute("SELECT * FROM projects WHERE user_id={}".format(user_id))
 
+        result = list()
+
         for obj in cur.fetchall():
             if query.lower() in obj['name'].lower():
-                return obj
+                result.append(obj)
+
+        return result
 
     def get_user_activity_by_query(self, user_id, chat_id, query):
         activity_names = self.get_user_accessible_activities(user_id, chat_id)
 
+        result = list()
+
         for obj in activity_names:
             if query.lower() in obj['name'].lower():
-                return obj
+                result.append(obj)
+
+        return result
 
 
 DB = DataBase()

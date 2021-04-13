@@ -12,20 +12,26 @@ class StartProject(Menu):
     def __init__(self, updater: Updater, start_activity):
         super().__init__(updater, 'components/start_project/start_project.xml')
         updater.dispatcher.add_handler(CommandHandler('start_project', self.start))
+        updater.dispatcher.add_handler(CommandHandler('sp', self.start))
         self.start_activity = start_activity
 
     def initial_state(self, update: Update):
         temp = update.message.text.split(" ")
 
         dur = "0"
+        q = ""
 
-        if len(temp) > 1 and temp[1].isdigit():
-            dur = temp[1]
+        if len(temp) > 1:
+            if temp[1].isdigit():
+                dur = temp[1]
+            else:
+                q = temp[1]
 
         return {
             "u_id": update.message.from_user.id,
             "page": "1",
-            "dur": dur
+            "dur": dur,
+            "q": q
         }
 
     def main_message_format(self, message_text, update: Update, state):
@@ -43,8 +49,9 @@ class StartProject(Menu):
         temp = update.message.text.split(" ")
 
         if len(temp) > 1 and not temp[1].isdigit():
-            project = DB.get_user_project_by_query(update.effective_user.id, temp[1])
-            if project is not None:
+            projects = DB.get_user_project_by_query(update.effective_user.id, temp[1])
+            if len(projects) == 1:
+                project = projects[0]
                 activity_name = DB.get_activity_by_id(project['activity_id'])['name']
 
                 self.start_activity.start_activity(
@@ -81,18 +88,23 @@ class StartProject(Menu):
 
             return keyboard
 
-        all_user_projects = DB.get_user_projects(state['u_id'])
+        if state['q'] == "":
 
-        projects = DB.get_last_projects(state['u_id'])
+            all_user_projects = DB.get_user_projects(state['u_id'])
 
-        for project in all_user_projects:
-            temp = {
-                'id': project['id'],
-                'name': project['name']
-            }
+            projects = DB.get_last_projects(state['u_id'])
 
-            if temp not in projects:
-                projects.append(temp)
+            for project in all_user_projects:
+                temp = {
+                    'id': project['id'],
+                    'name': project['name']
+                }
+
+                if temp not in projects:
+                    projects.append(temp)
+
+        else:
+            projects = DB.get_user_project_by_query(update.effective_user.id, state['q'])
 
         i = self.IN_PAGE * (int(state['page']) - 1)
 
@@ -112,7 +124,10 @@ class StartProject(Menu):
         return False
 
     def is_next_hidden(self, state, update: Update):
-        length = len(DB.get_user_projects(state['u_id'])) - 1
+        if state['q'] == "":
+            length = len(DB.get_user_projects(state['u_id']))
+        else:
+            length = len(DB.get_user_project_by_query(state['u_id'], state['q']))
 
         page_count = ceil(length / self.IN_PAGE)
 

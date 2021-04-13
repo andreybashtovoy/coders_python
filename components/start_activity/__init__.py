@@ -13,20 +13,26 @@ class StartActivity(Menu):
         super().__init__(updater, 'components/start_activity/start_activity.xml')
         updater.dispatcher.add_handler(CommandHandler('stop', self.stop))
         updater.dispatcher.add_handler(CommandHandler('start', self.start))
+        updater.dispatcher.add_handler(CommandHandler('s', self.start))
 
     def initial_state(self, update: Update):
         temp = update.message.text.split(" ")
 
         dur = "0"
+        q = ""
 
-        if len(temp) > 1 and temp[1].isdigit():
-            dur = temp[1]
+        if len(temp) > 1:
+            if temp[1].isdigit():
+                dur = temp[1]
+            else:
+                q = temp[1]
 
         return {
             "u_id": update.message.from_user.id,
             "page": "1",
             "a": "0",
-            "dur": dur
+            "dur": dur,
+            "q": q
         }
 
     def main_message_format(self, message_text, update: Update, state):
@@ -44,9 +50,9 @@ class StartActivity(Menu):
         temp = update.message.text.split(" ")
 
         if len(temp) > 1 and not temp[1].isdigit():
-            activity = DB.get_user_activity_by_query(update.effective_user.id, update.effective_chat.id, temp[1])
-            if activity is not None:
-                activity_name = activity['name']
+            activities = DB.get_user_activity_by_query(update.effective_user.id, update.effective_chat.id, temp[1])
+            if len(activities) == 1:
+                activity_name = activities[0]['name']
 
                 self.start_activity(
                     update.effective_user.id,
@@ -112,19 +118,26 @@ class StartActivity(Menu):
 
             return keyboard
 
-        activity_names = DB.get_user_accessible_activities(state['u_id'], update.effective_chat.id)
+        if state['q'] == "":
+            activity_names = DB.get_user_accessible_activities(state['u_id'], update.effective_chat.id)
 
-        names = []
+            names = []
 
-        counted = DB.count_user_activities(state['u_id'])
+            counted = DB.count_user_activities(state['u_id'])
 
-        for obj in counted:
-            if obj['name'] in [x['name'] for x in activity_names]:
-                names.append(obj['name'])
+            for obj in counted:
+                if obj['name'] in [x['name'] for x in activity_names]:
+                    names.append(obj['name'])
 
-        for activity in activity_names:
-            if activity['name'] not in names and activity['id'] != 0:
-                names.append(activity['name'])
+            for activity in activity_names:
+                if activity['name'] not in names and activity['id'] != 0:
+                    names.append(activity['name'])
+        else:
+            names = [obj['name'] for obj in
+                     DB.get_user_activity_by_query(update.effective_user.id, update.effective_chat.id, state['q'])]
+
+            if 'Ничего' in names:
+                names.remove('Ничего')
 
         i = self.IN_PAGE * (int(state['page']) - 1)
 
@@ -144,7 +157,16 @@ class StartActivity(Menu):
         return False
 
     def is_next_hidden(self, state, update: Update):
-        length = len(DB.get_user_accessible_activities(state['u_id'], update.effective_chat.id)) - 1
+        if state['q'] == "":
+            length = len(DB.get_user_accessible_activities(state['u_id'], update.effective_chat.id)) - 1
+        else:
+            names = [obj['name'] for obj in
+                     DB.get_user_activity_by_query(update.effective_user.id, update.effective_chat.id, state['q'])]
+
+            if 'Ничего' in names:
+                names.remove('Ничего')
+
+            length = len(names)
 
         page_count = ceil(length / self.IN_PAGE)
 
