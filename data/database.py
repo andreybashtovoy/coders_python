@@ -122,14 +122,14 @@ class DataBase:
 
     @with_connection
     def get_rating(self, period, chat_id, cur):
-        condition = ""
+        condition = "AND p.start_time > '2021-08-16' "
 
         if period == "month":
             condition = "AND p.start_time > DATE('now', 'localtime', 'start of month') AND p.start_time > '2021-08-16' "
         elif period == "week":
             condition = "AND p.start_time > DATE('now', 'localtime', 'weekday 1', '-7 days') AND p.start_time > '2021-08-16' "
         elif period == "day":
-            condition = "AND p.start_time > DATE('now', 'localtime') "
+            condition = "AND p.start_time > DATE('now', 'localtime') AND p.start_time > '2021-08-16' "
 
         cur.execute(
             "SELECT main.*, act.challenge FROM (SELECT p.user_id,u.username,SUM(p.duration) AS sum, a.activity_id AS current_activity, " +
