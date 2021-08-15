@@ -240,7 +240,7 @@ class DataMethods:
                            "WHERE act.user_id IN "
                             "(SELECT u.user_id FROM users_chats uc "
                             "JOIN users u on uc.user_id = u.user_id "
-                            "WHERE uc.chat_id=%s)" % chat_id, con)
+                            "WHERE uc.chat_id=%s AND start_time > '2021-08-16')" % chat_id, con)
         data['date'] = data.start_time.apply(lambda x: pd.Timestamp(x).strftime("%m-%d-%y"))
         grouped = data[data.challenge == 1].groupby(by=['date', 'username']).duration.sum()
         df = pd.DataFrame(grouped).reset_index()

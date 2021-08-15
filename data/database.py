@@ -125,11 +125,11 @@ class DataBase:
         condition = ""
 
         if period == "month":
-            condition = "AND p.start_time > DATE('now', 'localtime', 'start of month')"
+            condition = "AND p.start_time > DATE('now', 'localtime', 'start of month') AND p.start_time > '2021-08-16' "
         elif period == "week":
-            condition = "AND p.start_time > DATE('now', 'localtime', 'weekday 1', '-7 days')"
+            condition = "AND p.start_time > DATE('now', 'localtime', 'weekday 1', '-7 days') AND p.start_time > '2021-08-16' "
         elif period == "day":
-            condition = "AND p.start_time > DATE('now', 'localtime')"
+            condition = "AND p.start_time > DATE('now', 'localtime') "
 
         cur.execute(
             "SELECT main.*, act.challenge FROM (SELECT p.user_id,u.username,SUM(p.duration) AS sum, a.activity_id AS current_activity, " +
@@ -352,6 +352,15 @@ class DataBase:
                     "id IN (SELECT an.id FROM users_chats uc "
                     "JOIN activity_names an ON an.owner=uc.user_id "
                     "WHERE an.access=2 AND uc.chat_id=%s)" % (user_id, chat_id))
+        return cur.fetchall()
+
+    @with_connection
+    def get_all_user_accessible_activities(self, user_id, cur):
+        cur.execute("SELECT * FROM activity_names WHERE access=0 OR "
+                    "(access=1 AND owner=%s) OR "
+                    "id IN (SELECT an.id FROM users_chats uc "
+                    "JOIN activity_names an ON an.owner=uc.user_id "
+                    "WHERE an.access=2)" % user_id)
         return cur.fetchall()
 
     @with_connection
