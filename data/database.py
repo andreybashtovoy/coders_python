@@ -391,7 +391,7 @@ class DataBase:
 
     @with_connection
     def get_user_activities_by_day(self, user_id, day, cur):
-        cur.execute(("SELECT main.sum, an.name as activity_name, an.challenge,"
+        cur.execute(("SELECT main.activity_id, main.project_id, main.sum, an.name as activity_name, an.challenge,"
                     "p.name as project_name, main.start_time FROM ("
                     "SELECT SUM(duration) as sum, start_time, activity_id, project_id "
                     "FROM activities "

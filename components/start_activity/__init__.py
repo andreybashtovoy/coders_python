@@ -247,11 +247,24 @@ class StartActivity(Menu):
 
                 project_string = "📂 *Проект:* _%s_\n" % pr_name
 
+            day_activities = DB.get_user_activities_by_day(user_id, 0)
+
+            sum_duration = 0
+
+            for activity in day_activities:
+                if activity['activity_id'] == stopped_activity['activity_id']:
+                    if any(
+                            [stopped_activity['project_id'] is None,
+                             stopped_activity['project_id'] == activity['project_id']]
+                    ):
+                        sum_duration += activity['sum']
+
             func(
-                text="✅ Занятие завершено \({}\)\n{}\n⏱ Продолжительность: {}\.".format(
+                text="✅ Занятие завершено \({}\)\n{}\n⏱ Продолжительность: {}\.\n😎 Всего за сутки: {}\.".format(
                     ac_name,
                     project_string,
-                    self.get_string_by_duration(stopped_activity['duration'])
+                    self.get_string_by_duration(stopped_activity['duration']),
+                    self.get_string_by_duration(sum_duration),
                 ),
                 parse_mode="MarkdownV2"
             )
