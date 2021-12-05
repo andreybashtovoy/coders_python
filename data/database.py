@@ -101,11 +101,12 @@ class DataBase:
 
     @with_connection
     def get_active_task_user(self, user_id, cur):
-        cur.execute("SELECT an.name, a.start_time, a.activity_id, project_id, p.name as project_name  FROM (SELECT * FROM activities WHERE user_id=" + str(
-            user_id) + " AND duration=0) a " +
-                    "INNER JOIN activity_names an ON a.activity_id=an.id " +
-                    "LEFT JOIN projects p ON a.project_id=p.id " +
-                    "INNER JOIN users u ON u.user_id=a.user_id")
+        cur.execute(
+            "SELECT an.name, a.start_time, a.activity_id, project_id, p.name as project_name  FROM (SELECT * FROM activities WHERE user_id=" + str(
+                user_id) + " AND duration=0) a " +
+            "INNER JOIN activity_names an ON a.activity_id=an.id " +
+            "LEFT JOIN projects p ON a.project_id=p.id " +
+            "INNER JOIN users u ON u.user_id=a.user_id")
 
         fcho = cur.fetchone()
 
@@ -180,7 +181,9 @@ class DataBase:
         cur.execute(
             "UPDATE activities SET duration=" + str(duration) + " WHERE duration=0 AND user_id=" + str(user_id) + ";")
         cur.execute("INSERT INTO activities(user_id, activity_id, project_id, start_time) VALUES(" + str(user_id) +
-                    ", " + str(activity_id) + ", " + (str(project_id) if project_id is not None else "NULL") + ", DATETIME('now','localtime','-"+ str(delay) +" minutes'));")
+                    ", " + str(activity_id) + ", " + (
+                        str(project_id) if project_id is not None else "NULL") + ", DATETIME('now','localtime','-" + str(
+            delay) + " minutes'));")
 
     @with_connection
     def get_activity_by_name(self, name, cur):
@@ -201,8 +204,10 @@ class DataBase:
 
     @with_connection
     def add_activity(self, user_id, activity_id, duration, project_id, cur):
-        cur.execute("INSERT INTO activities(user_id, activity_id, duration, project_id, start_time) VALUES(" + str(user_id) + ","
-                    + str(activity_id) + "," + str(duration) + ", " + (str(project_id) if project_id is not None else "NULL") +
+        cur.execute("INSERT INTO activities(user_id, activity_id, duration, project_id, start_time) VALUES(" + str(
+            user_id) + ","
+                    + str(activity_id) + "," + str(duration) + ", " + (
+                        str(project_id) if project_id is not None else "NULL") +
                     ", DATETIME('now','localtime','-" + str(duration if duration > 0 else 0) + " hours') );")
 
     @with_connection
@@ -294,8 +299,8 @@ class DataBase:
     @with_connection
     def get_active_project(self, user_id, name, cur):
         cur.execute(("SELECT * FROM projects WHERE user_id=%s AND active=1 AND activity_id=(SELECT id FROM " +
-                    "activity_names WHERE " +
-                    "name='%s')") %
+                     "activity_names WHERE " +
+                     "name='%s')") %
                     (user_id, name))
         return cur.fetchone()
 
@@ -317,9 +322,10 @@ class DataBase:
 
         if chat_obj is None:
             cur.execute("INSERT INTO chats(chat_id, name) VALUES (%d, '%s')" %
-                    (chat.id, chat.title if chat.title is not None else chat.username))
+                        (chat.id, chat.title if chat.title is not None else chat.username))
         else:
-            cur.execute("UPDATE chats SET name='%s' WHERE chat_id=%s" % (chat.title if chat.title is not None else chat.username, chat.id))
+            cur.execute("UPDATE chats SET name='%s' WHERE chat_id=%s" % (
+            chat.title if chat.title is not None else chat.username, chat.id))
 
         cur.execute("REPLACE INTO users_chats(chat_id, user_id) VALUES (%d, %d)" % (chat.id, user.id))
 
@@ -394,18 +400,18 @@ class DataBase:
     @with_connection
     def get_user_activities_by_day(self, user_id, day, cur):
         cur.execute(("SELECT main.activity_id, main.project_id, main.sum, an.name as activity_name, an.challenge,"
-                    "p.name as project_name, main.start_time FROM ("
-                    "SELECT SUM(duration) as sum, start_time, activity_id, project_id "
-                    "FROM activities "
-                    "WHERE start_time < DATE('now', 'localtime', '%d days') "
-                    "AND start_time > DATE('now', 'localtime', '%d days') "
-                    "AND user_id = %s "
-                    "and activity_id != 0 "
-                    "GROUP BY activity_id, project_id "
-                    ") main "
-                    "JOIN activity_names an ON main.activity_id = an.id "
-                    "LEFT JOIN projects p ON main.project_id = p.id "
-                    "ORDER BY sum DESC") % (int(day)+1, int(day), user_id))
+                     "p.name as project_name, main.start_time FROM ("
+                     "SELECT SUM(duration) as sum, start_time, activity_id, project_id "
+                     "FROM activities "
+                     "WHERE start_time < DATE('now', 'localtime', '%d days') "
+                     "AND start_time > DATE('now', 'localtime', '%d days') "
+                     "AND user_id = %s "
+                     "and activity_id != 0 "
+                     "GROUP BY activity_id, project_id "
+                     ") main "
+                     "JOIN activity_names an ON main.activity_id = an.id "
+                     "LEFT JOIN projects p ON main.project_id = p.id "
+                     "ORDER BY sum DESC") % (int(day) + 1, int(day), user_id))
         return cur.fetchall()
 
     @with_connection
@@ -434,6 +440,15 @@ class DataBase:
                     "an.challenge = 1 AND a.duration > 0 "
                     "AND a.start_time < DATE('now', 'localtime')" % chat_id)
         return cur.fetchone()['count'] != 0
+
+    @with_connection
+    def get_all_user_activities(self, user_id, cur):
+        cur.execute(
+            f"SELECT *, p.name as project_name, an.name as activity_name FROM activities a "
+            f"JOIN activity_names an ON a.activity_id = an.id "
+            f"LEFT JOIN projects p on p.id = a.project_id "
+            f"WHERE a.user_id={user_id}")
+        return cur.fetchall()
 
     @with_connection
     def get_purchase_by_reference(self, reference, cur):

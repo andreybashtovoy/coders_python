@@ -13,6 +13,7 @@ class CommandHandlers:
         updater.dispatcher.add_handler(CommandHandler('toggle_tag', self.toggle_tag))
         updater.dispatcher.add_handler(CommandHandler('ranks', self.ranks))
         updater.dispatcher.add_handler(CommandHandler('status', self.status))
+        updater.dispatcher.add_handler(CommandHandler('calendar', self.calendar))
 
     def restart(self, update: Update, context):
         update.message.reply_text("До связи")
@@ -83,5 +84,11 @@ class CommandHandlers:
 
         update.message.reply_text(
             text="%s *%s*%s: _%s_" % (task_icon, activity['name'], project_str, activity['time']),
+            parse_mode="Markdown"
+        )
+
+    def calendar(self, update: Update, context: CallbackContext):
+        update.message.reply_text(
+            text=f"http://161.97.155.140/activities/{update.message.from_user.id}",
             parse_mode="Markdown"
         )

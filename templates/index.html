@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='utf-8'/>
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css' rel='stylesheet'/>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js'></script>
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'timeGridWeek'
+            });
+
+            {% for result in data %}
+                calendar.addEvent({
+                    title: '{{result['title']}}',
+                    start: '{{result['start']}}',
+                    end: '{{result['end']}}',
+                    color: '{{result['color']}}'
+                })
+            {% endfor %}
+            calendar.render();
+        });
+
+    </script>
+</head>
+<body>
+<div id='calendar'></div>
+</body>
+</html>
