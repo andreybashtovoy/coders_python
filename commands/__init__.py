@@ -73,9 +73,15 @@ class CommandHandlers:
     def status(self, update: Update, context: CallbackContext):
         activity = DB.get_active_task_user(update.message.from_user.id)
 
+        print(activity)
+
         task_icon = "🟢" if activity['active'] else "🔴"
 
+        project_str = ""
+        if activity['project_name'] is not None:
+            project_str = f" ({activity['project_name']})"
+
         update.message.reply_text(
-            text="%s *%s* (_%s_)" % (task_icon, activity['name'], activity['time']),
+            text="%s *%s*%s: _%s_" % (task_icon, activity['name'], project_str, activity['time']),
             parse_mode="Markdown"
         )

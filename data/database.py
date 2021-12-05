@@ -101,9 +101,10 @@ class DataBase:
 
     @with_connection
     def get_active_task_user(self, user_id, cur):
-        cur.execute("SELECT an.name, a.start_time, a.activity_id  FROM (SELECT * FROM activities WHERE user_id=" + str(
+        cur.execute("SELECT an.name, a.start_time, a.activity_id, project_id, p.name as project_name  FROM (SELECT * FROM activities WHERE user_id=" + str(
             user_id) + " AND duration=0) a " +
                     "INNER JOIN activity_names an ON a.activity_id=an.id " +
+                    "LEFT JOIN projects p ON a.activity_id=p.id " +
                     "INNER JOIN users u ON u.user_id=a.user_id")
 
         fcho = cur.fetchone()
@@ -117,7 +118,8 @@ class DataBase:
         return {
             'name': fcho['name'],
             'active': True if fcho['activity_id'] != 0 else False,
-            'time': time
+            'time': time,
+            'project_name': fcho['project_name']
         }
 
     @with_connection
