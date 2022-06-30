@@ -2,6 +2,8 @@ from telegram.ext import Updater, CallbackContext, CallbackQueryHandler, Message
 from telegram import Update
 import warnings
 import json
+
+from components.add_project import AddProject
 from components.user_stats import UserStats
 from components.rating import Rating
 from components.add_time import AddTime
@@ -53,7 +55,7 @@ if __name__ == "__main__":
     separate_activity = SeparateActivity(updater, activities)
     activities.append(separate_activity)
 
-    menus = [UserStats(updater), RatingGraph(updater), Rating(updater), AddTime(updater),
+    menus = [UserStats(updater), RatingGraph(updater), Rating(updater), AddProject(updater), AddTime(updater),
              selecting_activity, activities_obj, Days(updater), Help(updater), Chat(updater), Reset(updater),
              start_project
              ]

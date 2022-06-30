@@ -197,6 +197,13 @@ class DataBase:
             if obj['name'] == name:
                 return obj
 
+    def get_user_project_by_name(self, name, user_id):
+        project_names = self.get_user_projects(user_id)
+
+        for obj in project_names:
+            if obj['name'] == name:
+                return obj
+
     @with_connection
     def get_activity_by_id(self, id, cur):
         cur.execute("SELECT * FROM activity_names WHERE id=%d" % int(id))
