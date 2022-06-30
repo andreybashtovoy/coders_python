@@ -161,6 +161,13 @@ class DataBase:
         return cur.fetchall()
 
     @with_connection
+    def get_last_activities(self, user_id, cur):
+        cur.execute("SELECT DISTINCT p.id, p.name FROM activities a "
+                    "JOIN activity_names p on p.id = a.activity_id "
+                    "WHERE a.user_id=%s AND p.id != 0 ORDER BY a.id DESC" % user_id)
+        return cur.fetchall()
+
+    @with_connection
     def get_active_activity(self, user_id, cur):
         cur.execute(
             "SELECT main.*, an.name FROM (SELECT * FROM activities WHERE duration=0 AND user_id=" + str(user_id) +

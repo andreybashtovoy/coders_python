@@ -123,7 +123,7 @@ class StartActivity(Menu):
 
             names = []
 
-            counted = DB.count_user_activities(state['u_id'])
+            counted = DB.get_last_activities(state['u_id'])
 
             for obj in counted:
                 if obj['name'] in [x['name'] for x in activity_names]:
