@@ -50,8 +50,9 @@ class DataMethods:
     @plot_and_return
     @with_connection
     def plot_sleep(self, user_id, con):
-        activities = pd.read_sql_query("SELECT * from activities WHERE activity_id=9 AND user_id="+str(user_id), con)
-        activities['date'] = activities.start_time.apply(lambda x: (pd.Timestamp(x) + pd.Timedelta("3 hours")).strftime("%m-%d-%y"))
+        activities = pd.read_sql_query("SELECT * from activities WHERE activity_id=9 AND user_id=" + str(user_id), con)
+        activities['date'] = activities.start_time.apply(
+            lambda x: (pd.Timestamp(x) + pd.Timedelta("3 hours")).strftime("%m-%d-%y"))
 
         grouped = activities.groupby(by=["date"]).duration.sum()
 
@@ -61,7 +62,6 @@ class DataMethods:
 
         indicies = np.intersect1d(indicies, grouped.index)
 
-
         ax = grouped.loc[indicies].plot(kind='bar', figsize=(11, 9))
         ax.set_xlabel('Дата')
         ax.set_ylabel('Продолжительность сна (Часов)')
@@ -70,7 +70,7 @@ class DataMethods:
     @plot_and_return
     @with_connection
     def plot_sleep_dist(self, user_id, con):
-        activities = pd.read_sql_query("SELECT * from activities WHERE activity_id=9 AND user_id="+str(user_id), con)
+        activities = pd.read_sql_query("SELECT * from activities WHERE activity_id=9 AND user_id=" + str(user_id), con)
         activities['date'] = activities.start_time.apply(
             lambda x: (pd.Timestamp(x) + pd.Timedelta("3 hours")).strftime("%m-%d-%y"))
 
@@ -88,7 +88,9 @@ class DataMethods:
     @plot_and_return
     @with_connection
     def plot_time_with_benefit(self, user_id, con):
-        activities = pd.read_sql_query("SELECT * from activities a JOIN activity_names an ON a.activity_id=an.id WHERE an.challenge=1 AND a.user_id="+str(user_id), con)
+        activities = pd.read_sql_query(
+            "SELECT * from activities a JOIN activity_names an ON a.activity_id=an.id WHERE an.challenge=1 AND a.user_id=" + str(
+                user_id), con)
         # activities = activities.merge(self.activity_names[['id', 'challenge', 'name']], left_on="activity_id", right_on="id",
         #                               how="inner")
 
@@ -178,7 +180,7 @@ class DataMethods:
         activities = pd.read_sql_query("SELECT * from activities WHERE activity_id=9 AND user_id=" + str(user_id), con)
 
         def get_seconds(row):
-            sec = self.to_seconds(row.start_time) + row.duration*60*60
+            sec = self.to_seconds(row.start_time) + row.duration * 60 * 60
             sec = sec % (60 * 60 * 24)
             return sec
 
@@ -191,7 +193,6 @@ class DataMethods:
 
         if len(time) == 0:
             return "?", "?"
-
 
         mean = ":".join(self.seconds_to_str(time.mean()))
         std = ":".join(self.seconds_to_str(np.std(time)))
@@ -234,13 +235,18 @@ class DataMethods:
     @plot_and_return
     @with_connection
     def plot_rating(self, state, chat_id, con):
+        start_date = '2021-08-16'
+
+        if str(chat_id) == '-1001601311717':
+            start_date = '2022-10-22'
+
         data = pd.read_sql("SELECT act.*, an.name, an.challenge, u.username FROM activities act "
                            "JOIN activity_names an ON act.activity_id=an.id "
                            "JOIN users u ON act.user_id=u.user_id "
                            "WHERE act.user_id IN "
-                            "(SELECT u.user_id FROM users_chats uc "
-                            "JOIN users u on uc.user_id = u.user_id "
-                            "WHERE uc.chat_id=%s AND start_time > '2021-08-16')" % chat_id, con)
+                           "(SELECT u.user_id FROM users_chats uc "
+                           "JOIN users u on uc.user_id = u.user_id "
+                           "WHERE uc.chat_id=%s AND start_time > '%s')" % (chat_id, start_date), con)
         data['date'] = data.start_time.apply(lambda x: pd.Timestamp(x).strftime("%m-%d-%y"))
         grouped = data[data.challenge == 1].groupby(by=['date', 'username']).duration.sum()
         df = pd.DataFrame(grouped).reset_index()
@@ -249,7 +255,6 @@ class DataMethods:
         tod = datetime.datetime.now()
         d = datetime.timedelta(days=int(state['days']))
         a = tod - d
-
 
         df = df[df.date >= a.strftime('%Y-%m-%d')].set_index(['date', 'username']).unstack().fillna(0).cumsum()
         days = (df.index[-1:] - df.index[0]).days[0]

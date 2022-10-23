@@ -125,14 +125,20 @@ class DataBase:
 
     @with_connection
     def get_rating(self, period, chat_id, cur):
-        condition = "AND p.start_time > '2021-08-16' "
+
+        start_date = '2021-08-16'
+
+        if str(chat_id) == '-1001601311717':
+            start_date = '2022-10-22'
+
+        condition = "AND p.start_time > '%s' " % start_date
 
         if period == "month":
-            condition = "AND p.start_time > DATE('now', 'localtime', 'start of month') AND p.start_time > '2021-08-16' "
+            condition = "AND p.start_time > DATE('now', 'localtime', 'start of month') AND p.start_time > '%s' " % start_date
         elif period == "week":
-            condition = "AND p.start_time > DATE('now', 'localtime', 'weekday 1', '-7 days') AND p.start_time > '2021-08-16' "
+            condition = "AND p.start_time > DATE('now', 'localtime', 'weekday 1', '-7 days') AND p.start_time > '%s' " % start_date
         elif period == "day":
-            condition = "AND p.start_time > DATE('now', 'localtime') AND p.start_time > '2021-08-16' "
+            condition = "AND p.start_time > DATE('now', 'localtime') AND p.start_time > '%s' " % start_date
 
         cur.execute(
             "SELECT main.*, act.challenge FROM (SELECT p.user_id,u.username,SUM(p.duration) AS sum, a.activity_id AS current_activity, " +
@@ -339,7 +345,7 @@ class DataBase:
                         (chat.id, chat.title if chat.title is not None else chat.username))
         else:
             cur.execute("UPDATE chats SET name='%s' WHERE chat_id=%s" % (
-            chat.title if chat.title is not None else chat.username, chat.id))
+                chat.title if chat.title is not None else chat.username, chat.id))
 
         cur.execute("REPLACE INTO users_chats(chat_id, user_id) VALUES (%d, %d)" % (chat.id, user.id))
 
